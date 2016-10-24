@@ -2,10 +2,10 @@ from discord.ext import commands
 from secret import BOT_TOKEN
 from argparse import ArgumentParser
 from shlex import split
-from commands import stats_command, price_command
+from commands import stats_command, price_command, vos_command
 from discord import __version__
 
-bot = commands.Bot(command_prefix='!')
+bot = commands.Bot(command_prefix='`')
 
 
 class Arguments(ArgumentParser):
@@ -67,6 +67,12 @@ async def price(ctx, *, msg: str):
     await price_command.execute(bot, args)
 
 
+@bot.command(pass_context=True, aliases=['voice'])
+async def vos(ctx):
+    await bot.send_typing(ctx.message.channel)
+    await vos_command.execute(bot)
+
+
 @bot.command(aliases=['info'])
 async def about():
     await bot.say('__Author:__ Duke605\n'
@@ -74,5 +80,7 @@ async def about():
                   '__Version:__ 1.0.0\n'
                   '__Github Repo:__ <https://github.com/duke605/RunePy>\n'
                   '__Official Server:__ <https://discord.gg/uaTeR6V>')
+
+
 
 bot.run(BOT_TOKEN)
