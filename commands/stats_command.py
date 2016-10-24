@@ -20,9 +20,8 @@ async def execute(bot, args):
         table.add_row(
             key.capitalize(),
             Column(stat['level'], 2),
-            Column('{:,}'.format(stat['exp'], 2)),
-            Column('{:,}'.format(stat['rank'], 2))
-        )
+            Column('{:,}'.format(stat['exp']), 2),
+            Column('{:,}'.format(stat['rank']), 2))
 
     # Plain text
     text = str(table)
