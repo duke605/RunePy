@@ -47,7 +47,7 @@ async def get_active_districts():
         filtered = filtered[:2]
 
         expire = datetime.now()
-        expire = datetime(expire.year, expire.month, expire.day, expire.hour + 1)
+        expire = datetime(expire.year, expire.month, expire.day, expire.hour + 1, 1)
 
         globals()['tweets'] = {
             'active': re.search(pattern, filtered[0]['text']).groups(),

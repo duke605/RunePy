@@ -1,7 +1,7 @@
 from discord.ext import commands
 from secret import BOT_TOKEN
 from shlex import split
-from commands import stats_command, price_command, vos_command, portables_command
+from commands import stats_command, price_command, vos_command, portables_command, peng_command
 from discord import __version__
 import asyncio
 import argparse
@@ -144,5 +144,9 @@ async def clear(ctx, *, msg='100'):
     m = await bot.say('Deleted **{:,}** messages.'.format(counter))
     await asyncio.sleep(5)
     await bot.delete_message(m)
+
+@bot.command()
+async def penglocs():
+    await peng_command.execute(bot)
 
 bot.run(BOT_TOKEN)
