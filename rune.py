@@ -4,6 +4,7 @@ from argparse import ArgumentParser
 from shlex import split
 from commands import stats_command, price_command, vos_command, portables_command
 from discord import __version__
+import asyncio
 
 bot = commands.Bot(command_prefix='`')
 
@@ -100,5 +101,23 @@ async def portables(ctx, *, msg: str=''):
         return
 
     await portables_command.execute(bot, args)
+
+
+@bot.command(pass_context=True, aliases=['clean'])
+async def clear(ctx):
+    counter = 0
+
+    # Getting messages
+    async for m in bot.logs_from(ctx.message.channel):
+
+        # Deleting my messages
+        if m.author == bot.user:
+            counter += 1
+            await bot.delete_message(m)
+
+    # Displaying the number of messages deleted
+    m = await bot.say('Deleted **{:,}** messages.'.format(counter))
+    await asyncio.sleep(5)
+    await bot.delete_message(m)
 
 bot.run(BOT_TOKEN)
