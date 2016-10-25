@@ -4,6 +4,8 @@ from shlex import split
 from commands import stats_command, price_command, vos_command, portables_command, peng_command
 from discord import __version__
 from util import runescape
+from datetime import datetime
+import math
 import asyncio
 import argparse
 
@@ -79,7 +81,7 @@ async def vos(ctx):
 async def about():
     await bot.say('__Author:__ Duke605\n'
                   '__Library:__ discord.py ('+__version__+')\n'
-                  '__Version:__ 1.0.7\n'
+                  '__Version:__ 1.0.8\n'
                   '__Github Repo:__ <https://github.com/duke605/RunePy>\n'
                   '__Official Server:__ <https://discord.gg/uaTeR6V>')
 
@@ -190,5 +192,36 @@ async def xp(ctx, *, msg):
 @bot.command()
 async def invite():
     await bot.say('https://discordapp.com/oauth2/authorize?client_id=%s&scope=bot&permissions=84992' % bot.user.id)
+
+
+@bot.command()
+async def reset():
+    now = datetime.utcnow()
+    then = datetime.utcnow().replace(hour=23, minute=59, second=59)
+    delta = (then - now).seconds
+
+    # Getting hours
+    hours = math.floor(delta / 60 / 60)
+    delta -= hours * 60 * 60
+
+    # Getting minutes
+    minutes = math.floor(delta / 60)
+    delta -= minutes * 60
+
+    # Getting seconds
+    seconds = delta
+
+    # Building message
+    m = ''
+    if hours > 0:
+        m += ' **{:,}** hour{}'.format(hours, 's' if hours > 1 else '')
+
+    if minutes > 0:
+        m += ' **{:,}** minute{}'.format(minutes, 's' if minutes > 1 else '')
+
+    if seconds > 0:
+        m += ' **{:,}** seconds{}'.format(seconds, 's' if seconds > 1 else '')
+
+    await bot.say('The game will reset in%s.' % m)
 
 bot.run(BOT_TOKEN)
