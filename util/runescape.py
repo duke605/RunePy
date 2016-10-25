@@ -4,6 +4,7 @@ from urllib.parse import quote
 from collections import OrderedDict
 from db.models import objects, Item
 from datetime import datetime
+import math
 import asyncio
 import re
 
@@ -149,3 +150,21 @@ async def get_item_for_name(name: str):
 
     return item, history
 
+
+def exp_between_levels(level1: int, level2: int):
+    """
+    Gets the amoount of exp between two levels
+
+    :param level1: The low level
+    :param level2: The high level
+    """
+
+    exp1 = 0
+    exp2 = 0
+
+    for i in range(1, level2):
+        if i < level1:
+            exp1 += math.floor(i + 300 * 2**(i/7))
+        exp2 += math.floor(i + 300 * 2**(i/7))
+
+    return math.floor(exp2 / 4) - math.floor(2/4)
