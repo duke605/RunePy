@@ -79,7 +79,7 @@ async def vos(ctx):
 async def about():
     await bot.say('__Author:__ Duke605\n'
                   '__Library:__ discord.py ('+__version__+')\n'
-                  '__Version:__ 1.0.5\n'
+                  '__Version:__ 1.0.7\n'
                   '__Github Repo:__ <https://github.com/duke605/RunePy>\n'
                   '__Official Server:__ <https://discord.gg/uaTeR6V>')
 
@@ -185,5 +185,10 @@ async def xp(ctx, *, msg):
 
     await bot.say('The total experience between levels **{:,}** and **{:,}** is **{:,}**.'
                   .format(args.level1, args.level2, runescape.exp_between_levels(args.level1, args.level2)))
+
+
+@bot.command()
+async def invite():
+    await bot.say('https://discordapp.com/oauth2/authorize?client_id=%s&scope=bot&permissions=84992' % bot.user.id)
 
 bot.run(BOT_TOKEN)
