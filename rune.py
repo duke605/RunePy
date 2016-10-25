@@ -2,7 +2,7 @@ from discord.ext import commands
 from secret import BOT_TOKEN
 from argparse import ArgumentParser
 from shlex import split
-from commands import stats_command, price_command, vos_command
+from commands import stats_command, price_command, vos_command, portables_command
 from discord import __version__
 
 bot = commands.Bot(command_prefix='`')
@@ -82,5 +82,23 @@ async def about():
                   '__Official Server:__ <https://discord.gg/uaTeR6V>')
 
 
+@bot.command(pass_context=True, aliases=['ports', 'port', 'portable'])
+async def portables(ctx, *, msg: str=''):
+    parser = Arguments(allow_abbrev=False, prog='portables')
+    parser.add_argument('portable', nargs='?', choices=portables_command.PORTS, type=str.lower,
+                        help='Selects a type of portable to search for.')
+
+    await bot.send_typing(ctx.message.channel)
+
+    try:
+        args = parser.parse_args(split(msg))
+    except SystemExit:
+        await bot.say('```%s```' % parser.format_help())
+        return
+    except Exception as e:
+        await bot.say('```%s```' % str(e))
+        return
+
+    await portables_command.execute(bot, args)
 
 bot.run(BOT_TOKEN)

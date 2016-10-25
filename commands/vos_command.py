@@ -3,11 +3,11 @@ from datetime import datetime, timedelta
 from secret import TWITTER_BEARER_TOKEN
 import re
 
-DISTRICTS = ('Cadarn', 'Amlodd', 'Ithell', 'Hefin', 'Meilyr', 'Trahaearn', 'Iorwerth')
+DISTRICTS = ('Cadarn', 'Amlodd', 'Ithell', 'Hefin', 'Meilyr', 'Trahaearn', 'Iorwerth', 'Crwys')
 
 async def execute(bot):
     district_stats = await get_active_districts()
-    potential = (d for d in DISTRICTS if d not in district_stats['active'] and d not in district_stats['previous'])
+    potential = [d for d in DISTRICTS if d not in district_stats['active'] and d not in district_stats['previous']]
 
     m = '**Active districts:** %s and %s.\n' % district_stats['active']
     m += '**Previous districts:** %s and %s.\n' % district_stats['previous']
