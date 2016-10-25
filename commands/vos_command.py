@@ -46,13 +46,10 @@ async def get_active_districts():
         filtered = [t for t in json if re.search(pattern, t['text'])]
         filtered = filtered[:2]
 
-        expire = datetime.now()
-        expire = datetime(expire.year, expire.month, expire.day, expire.hour + 1, 1)
-
         globals()['tweets'] = {
             'active': re.search(pattern, filtered[0]['text']).groups(),
             'previous': re.search(pattern, filtered[1]['text']).groups(),
-            'expire': expire
+            'expire': (datetime.now() + timedelta(hours=1)).replace(minute=1, second=0)
         }
 
         return globals()['tweets']
