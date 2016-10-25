@@ -1,15 +1,15 @@
 from discord.ext import commands
 from secret import BOT_TOKEN
-from argparse import ArgumentParser
 from shlex import split
 from commands import stats_command, price_command, vos_command, portables_command
 from discord import __version__
 import asyncio
+import argparse
 
 bot = commands.Bot(command_prefix='`')
 
 
-class Arguments(ArgumentParser):
+class Arguments(argparse.ArgumentParser):
 
     def error(self, message):
         raise RuntimeError(message)
@@ -78,7 +78,7 @@ async def vos(ctx):
 async def about():
     await bot.say('__Author:__ Duke605\n'
                   '__Library:__ discord.py ('+__version__+')\n'
-                  '__Version:__ 1.0.0\n'
+                  '__Version:__ 1.0.5\n'
                   '__Github Repo:__ <https://github.com/duke605/RunePy>\n'
                   '__Official Server:__ <https://discord.gg/uaTeR6V>')
 
@@ -104,11 +104,36 @@ async def portables(ctx, *, msg: str=''):
 
 
 @bot.command(pass_context=True, aliases=['clean'])
-async def clear(ctx):
-    counter = 0
+async def clear(ctx, *, msg='100'):
+
+    # Tests if a number is between certain constraints
+    def test(s):
+        s = int(s)
+
+        # Checking if the number is within range
+        if s < 1 or s > 100:
+            raise argparse.ArgumentTypeError('must be between 1 and 100.')
+
+        return s
+
+    parser = Arguments(allow_abbrev=False, prog='clear')
+    parser.add_argument('num', nargs='?', type=test, default=100
+                        , help='The number of messages to search through.')
+
+    await bot.send_typing(ctx.message.channel)
+
+    try:
+        args = parser.parse_args(split(msg))
+    except SystemExit:
+        await bot.say('```%s```' % parser.format_help())
+        return
+    except Exception as e:
+        await bot.say('```%s```' % str(e))
+        return
 
     # Getting messages
-    async for m in bot.logs_from(ctx.message.channel):
+    counter = 0
+    async for m in bot.logs_from(ctx.message.channel, args.num):
 
         # Deleting my messages
         if m.author == bot.user:
