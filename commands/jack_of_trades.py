@@ -13,7 +13,7 @@ class JackOfTrades:
     async def jot(self, *, msg):
         parser = Arguments(allow_abbrev=False, prog='jot')
         parser.add_argument('type', choices=['legendary', 'normal', 'master', 'supreme'], help='The type the aura.')
-        parser.add_argument('level', type=choices.between(1, 121),
+        parser.add_argument('level', type=choices.between(1, 120),
                             help='The level the amount of exp will be granted to.')
 
         try:

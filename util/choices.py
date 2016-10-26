@@ -9,7 +9,7 @@ def between(low, high):
     def test(s):
         s = int(s)
 
-        if low > s >= high:
+        if low > s or s > high:
             raise ArgumentTypeError('must be between {:,} and {:,}'.format(low, high))
 
         return s

@@ -1,6 +1,7 @@
 from util.arguments import Arguments
 from discord.ext import commands
 from shlex import split
+from util import choices
 
 
 class Lamp:
@@ -21,7 +22,7 @@ class Lamp:
     async def lamp(self, *, msg):
         parser = Arguments(allow_abbrev=False, prog='lamp')
         parser.add_argument('size', choices=['small', 'medium', 'large', 'huge'], help='The size of the lamp')
-        parser.add_argument('level', type=int, choices=range(1, 100),
+        parser.add_argument('level', type=choices.between(1, 120),
                             help='The level in your stat you wish to use the lamp on.')
 
         try:
