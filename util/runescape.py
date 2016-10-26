@@ -14,7 +14,38 @@ STAT_ORDER = ('overall', 'attack', 'defence', 'strength', 'constitution', 'range
               'agility', 'thieving', 'slayer', 'farming', 'runecrafting', 'hunter', 'construction', 'summoning',
               'dungeoneering', 'divination', 'invention')
 
+
+def add_metric_suffix(num: int):
+    """
+    Adds the classic (b, m, k) suffixes to the end of a number
+
+    :param num: The number to add the suffix to
+    """
+
+    # Billion
+    if num >= 1000000000:
+        x = num / 1000000000
+        return '{:,}b'.format(int(x) if 1 % x == 0 else round(x, 1))
+
+    # Million
+    if num >= 1000000:
+        x = num / 1000000
+        return '{:,}m'.format(int(x) if 1 % x == 0 else round(x, 1))
+
+    # Thousand
+    if num >= 1000:
+        x = num / 1000
+        return '{:,}m'.format(int(x) if 1 % x == 0 else round(x, 1))
+
+    return '{:,}m'.format(int(num))
+
 async def get_item_alch_prices(item_name: str, fuzzy_name=True):
+    """
+    Gets the high and low alch price of an item
+
+    :param item_name: The item name to get the alch prices for
+    :param fuzzy_name: True if the name mame be fuzzy
+    """
 
     # Getting name if might be fuzzy
     if fuzzy_name:

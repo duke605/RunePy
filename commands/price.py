@@ -1,4 +1,4 @@
-from util.runescape import get_item_for_name, get_item_alch_prices
+from util.runescape import get_item_for_name, get_item_alch_prices, add_metric_suffix
 from matplotlib import pyplot, ticker
 from datetime import datetime
 from io import BytesIO
@@ -129,15 +129,15 @@ class Price:
         ax.get_yaxis().grid(color='#3e4146', linestyle='-')
         ax.get_xaxis().grid(color='#3e4146', linestyle='-')
 
-        ax.tick_params(axis='x', pad=5)
-        ax.tick_params(axis='y', pad=5)
+        ax.tick_params(axis='x', pad=15)
+        ax.tick_params(axis='y', pad=15)
 
         ax.spines['bottom'].set_color('#000000')
         ax.spines['top'].set_color('#000000')
         ax.spines['left'].set_color('#000000')
         ax.spines['right'].set_color('#000000')
 
-        ax.get_yaxis().set_major_formatter(ticker.FuncFormatter(lambda _y, p: '{:,}'.format(_y)))
+        ax.get_yaxis().set_major_formatter(ticker.FuncFormatter(lambda _y, p: add_metric_suffix(_y)))
         ax.get_xaxis().set_major_formatter(
             ticker.FuncFormatter(lambda _x, p: datetime.fromtimestamp(_x / 1000.0).strftime('%b %d')))
 
