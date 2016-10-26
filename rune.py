@@ -1,15 +1,16 @@
-from discord.ext import commands
-from secret import BOT_TOKEN
-from shlex import split
-from commands import stats_command, price_command, vos_command, portables_command, peng_command, circus_command
-from discord import __version__
-from util import runescape
-from datetime import datetime
 import math
 import asyncio
 import argparse
+from discord.ext import commands
+from secret import BOT_TOKEN
+from shlex import split
+from discord import __version__
+from util import runescape
+from datetime import datetime
+from commands import stats_command, price_command, vos_command, portables_command, peng_command, circus_command, \
+    lamp_command
 
-bot = commands.Bot(command_prefix='`')
+bot = commands.Bot(command_prefix='`', )
 
 
 class Arguments(argparse.ArgumentParser):
@@ -81,7 +82,7 @@ async def vos(ctx):
 async def about():
     await bot.say('__Author:__ Duke605\n'
                   '__Library:__ discord.py ('+__version__+')\n'
-                  '__Version:__ 1.0.8\n'
+                  '__Version:__ 1.0.9\n'
                   '__Github Repo:__ <https://github.com/duke605/RunePy>\n'
                   '__Official Server:__ <https://discord.gg/uaTeR6V>')
 
@@ -228,5 +229,24 @@ async def reset():
 @bot.command()
 async def circus():
     await circus_command.execute(bot)
+
+
+@bot.command()
+async def lamp(*, msg):
+    parser = Arguments(allow_abbrev=False, prog='lamp')
+    parser.add_argument('size', choices=['small', 'medium', 'large', 'huge'], help='The size of the lamp')
+    parser.add_argument('level', type=int, choices=range(1, 100),
+                        help='The level in your stat you wish to use the lamp on.')
+
+    try:
+        args = parser.parse_args(split(msg))
+    except SystemExit:
+        await bot.say('```%s```' % parser.format_help())
+        return
+    except Exception as e:
+        await bot.say('```%s```' % str(e))
+        return
+
+    await lamp_command.execute(bot, args)
 
 bot.run(BOT_TOKEN)
