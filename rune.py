@@ -8,7 +8,7 @@ from discord import __version__
 from util import runescape
 from datetime import datetime
 from commands import stats_command, price_command, vos_command, portables_command, peng_command, circus_command, \
-    lamp_command
+    lamp_command, araxxi_command
 
 bot = commands.Bot(command_prefix='`', )
 
@@ -82,7 +82,7 @@ async def vos(ctx):
 async def about():
     await bot.say('__Author:__ Duke605\n'
                   '__Library:__ discord.py ('+__version__+')\n'
-                  '__Version:__ 1.0.9\n'
+                  '__Version:__ 1.0.10\n'
                   '__Github Repo:__ <https://github.com/duke605/RunePy>\n'
                   '__Official Server:__ <https://discord.gg/uaTeR6V>')
 
@@ -248,5 +248,10 @@ async def lamp(*, msg):
         return
 
     await lamp_command.execute(bot, args)
+
+
+@bot.command(aliases=['rax', 'araxxor', 'arax'])
+async def araxxi():
+    await araxxi_command.execute(bot)
 
 bot.run(BOT_TOKEN)
