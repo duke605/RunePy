@@ -1,7 +1,7 @@
 from discord.ext import commands
 from secret import BOT_TOKEN
 from shlex import split
-from commands import stats_command, price_command, vos_command, portables_command, peng_command
+from commands import stats_command, price_command, vos_command, portables_command, peng_command, circus_command
 from discord import __version__
 from util import runescape
 from datetime import datetime
@@ -220,8 +220,13 @@ async def reset():
         m += ' **{:,}** minute{}'.format(minutes, 's' if minutes > 1 else '')
 
     if seconds > 0:
-        m += ' **{:,}** seconds{}'.format(seconds, 's' if seconds > 1 else '')
+        m += ' **{:,}** second{}'.format(seconds, 's' if seconds > 1 else '')
 
     await bot.say('The game will reset in%s.' % m)
+
+
+@bot.command()
+async def circus():
+    await circus_command.execute(bot)
 
 bot.run(BOT_TOKEN)
