@@ -3,6 +3,8 @@ from discord import __version__
 from discord.ext import commands
 from aiohttp import ClientSession
 from util.checks import is_owner
+import inspect
+import os
 
 bot = commands.Bot(command_prefix='`')
 
@@ -29,7 +31,7 @@ async def on_ready():
 async def about():
     await bot.say('__Author:__ Duke605\n'
                   '__Library:__ discord.py (' + __version__ + ')\n'
-                  '__Version:__ 1.1.0\n'
+                  '__Version:__ 1.1.1\n'
                   '__Github Repo:__ <https://github.com/duke605/RunePy>\n'
                   '__Official Server:__ <https://discord.gg/uaTeR6V>')
 
@@ -94,6 +96,35 @@ async def reload(ext: str, use_prefix=True):
         return
 
     await bot.say('Successfully reloaded extension **%s**.' % ext)
+
+
+@bot.command(name='eval', hidden=True, pass_context=True)
+@is_owner()
+async def _eval(ctx, *, code):
+    """Evaluates code."""
+    python = '```py\n{}\n```'
+
+    env = {
+        'bot': bot,
+        'ctx': ctx,
+        'message': ctx.message,
+        'server': ctx.message.server,
+        'channel': ctx.message.channel,
+        'author': ctx.message.author,
+        'os': os
+    }
+
+    env.update(globals())
+
+    try:
+        result = eval(code, env)
+        if inspect.isawaitable(result):
+            result = await result
+    except Exception as e:
+        await bot.say(python.format(type(e).__name__ + ': ' + str(e)))
+        return
+
+    await bot.say(python.format(result))
 
 
 bot.run(BOT_TOKEN)
