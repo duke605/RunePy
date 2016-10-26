@@ -3,6 +3,7 @@ from urllib.parse import quote
 from collections import OrderedDict
 from db.models import objects, Item
 from datetime import datetime
+from bs4 import BeautifulSoup
 import aiohttp as http
 import math
 import asyncio
@@ -12,6 +13,35 @@ STAT_ORDER = ('overall', 'attack', 'defence', 'strength', 'constitution', 'range
               'woodcutting', 'fletching', 'fishing', 'firemaking', 'crafting', 'smithing', 'mining', 'herblore',
               'agility', 'thieving', 'slayer', 'farming', 'runecrafting', 'hunter', 'construction', 'summoning',
               'dungeoneering', 'divination', 'invention')
+
+async def get_item_alch_prices(item_name: str, fuzzy_name=True):
+
+    # Getting name if might be fuzzy
+    if fuzzy_name:
+        item = await fuzzy_match_name(item_name)
+
+        # Checking if the id was found
+        if not item_name:
+            return None
+
+        item_name = item['name']
+
+    # Getting high alch price
+    async with http.get('http://runescape.wikia.com/wiki/%s' % item_name.replace(' ', '_')) as r:
+        text = await r.text()
+
+    soup = BeautifulSoup(text, 'html.parser')
+    table = soup.find('table', attrs={'class': 'infobox-item'})
+    high_alch = int(table.find('a', attrs={'title': 'High Level Alchemy'}).parent.parent.find('td').text.strip()\
+        .split(' ')[0].replace(',', ''))
+    low_alch = int(table.find('a', attrs={'title': 'Low Level Alchemy'}).parent.parent.find('td').text.strip()\
+        .split(' ')[0].replace(',', ''))
+
+    return {
+        'high': high_alch,
+        'low': low_alch
+    }
+
 
 async def get_users_stats(username: str):
     """

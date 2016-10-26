@@ -1,4 +1,4 @@
-from util.runescape import get_item_for_name
+from util.runescape import get_item_for_name, get_item_alch_prices
 from matplotlib import pyplot, ticker
 from datetime import datetime
 from io import BytesIO
@@ -19,6 +19,8 @@ class Price:
         parser = Arguments(allow_abbrev=False, prog='price')
         parser.add_argument('name', nargs='+', help='The name if the item to get the price for.')
         parser.add_argument('-u', '--units', type=int, help="Multiplies the item's price by the units given.")
+        parser.add_argument('-l', '--low-alch', action='store_true', help='Displays the low alch price for the item.')
+        parser.add_argument('-H', '--high-alch', action='store_true', help='Displays the high alch price for the item.')
         parser.add_argument('-c', '--chart', type=int, choices=range(1, 7),
                             help="Plots the item's price history for number of given months.")
 
@@ -65,6 +67,26 @@ class Price:
             message += '\n**{:,}x =** `{:,}` GP'.format(args.units, args.units * item.price)
 
         m = await self.bot.say(message)
+
+        # Getting low and/or high alch price
+        if args.high_alch or args.low_alch:
+            alch_prices = await get_item_alch_prices(item.name, False)
+
+            # Check if alch prices found
+            if alch_prices:
+
+                # Adding high alch price
+                if args.high_alch:
+                    message += '\n**High alch price**: `{:,}` GP'.format(alch_prices['high'])
+
+                if args.low_alch:
+                    message += '\n**Low alch price**: `{:,}` GP'.format(alch_prices['low'])
+
+            # Alch prices not successful
+            else:
+                message += 'Alch prices could not be fetched.'
+
+            await self.bot.edit_message(m, message)
 
         # Adding chart
         if args.chart:

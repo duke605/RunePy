@@ -1,8 +1,9 @@
 from secret import BOT_TOKEN
-from discord import __version__
 from discord.ext import commands
 from aiohttp import ClientSession
 from util.checks import is_owner
+from util.runescape import get_item_alch_prices
+from util.arguments import Arguments
 import inspect
 import os
 
@@ -11,7 +12,8 @@ bot = commands.Bot(command_prefix='`')
 
 @bot.event
 async def on_ready():
-    startup_extensions = ['araxxi', 'circus', 'clear', 'lamp', 'peng_locs', 'portables', 'price', 'stats', 'vos', 'xp']
+    startup_extensions = ['araxxi', 'circus', 'clear', 'lamp', 'peng_locs', 'portables', 'price', 'stats', 'vos', 'xp',
+                          'about']
 
     for extension in startup_extensions:
         try:
@@ -25,15 +27,6 @@ async def on_ready():
     print(bot.user.id)
     print('------')
     bot.whttp = ClientSession()
-
-
-@bot.command(aliases=['info'])
-async def about():
-    await bot.say('__Author:__ Duke605\n'
-                  '__Library:__ discord.py (' + __version__ + ')\n'
-                  '__Version:__ 1.1.1\n'
-                  '__Github Repo:__ <https://github.com/duke605/RunePy>\n'
-                  '__Official Server:__ <https://discord.gg/uaTeR6V>')
 
 
 @bot.command()
