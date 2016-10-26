@@ -136,7 +136,7 @@ async def clear(ctx, *, msg='100'):
 
     # Getting messages
     deleted = await bot.purge_from(ctx.message.channel, limit=args.num, check=lambda m: m.author == bot.user or
-                                                                                        m.content.startswith('`'))
+                                                                            m.content.startswith(bot.command_prefix))
 
     # Displaying the number of messages deleted
     m = await bot.say('Deleted **{:,}** messages.'.format(len(deleted)))
