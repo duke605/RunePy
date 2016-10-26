@@ -44,7 +44,8 @@ class VoiceOfSeren:
         params = {'screen_name': 'JagexClock', 'count': 10}
         headers = {'Authorization': 'Bearer %s' % TWITTER_BEARER_TOKEN}
 
-        async with http.get('https://api.twitter.com/1.1/statuses/user_timeline.json', params=params, headers=headers) \
+        async with self.bot.whttp.get('https://api.twitter.com/1.1/statuses/user_timeline.json', params=params,
+                                      headers=headers) \
                 as r:
 
             # Checking if repose was good

@@ -33,12 +33,12 @@ async def invite():
     await bot.say('https://discordapp.com/oauth2/authorize?client_id=%s&scope=bot&permissions=93184' % bot.user.id)
 
 
-@bot.group(aliases=['ext', 'cog'])
+@bot.group(aliases=['ext', 'cog'], hidden=True)
 async def extension():
     pass
 
 
-@extension.command()
+@extension.command(hidden=True)
 @is_owner()
 async def load(ext: str, use_prefix=True):
     ext = ('commands.' if use_prefix else '') + ext
@@ -53,7 +53,7 @@ async def load(ext: str, use_prefix=True):
     await bot.say('Successfully loaded extension **%s**.' % ext)
 
 
-@extension.command()
+@extension.command(hidden=True)
 @is_owner()
 async def unload(ext: str, use_prefix=True):
     ext = ('commands.' if use_prefix else '') + ext
@@ -68,7 +68,7 @@ async def unload(ext: str, use_prefix=True):
     await bot.say('Successfully unloaded extension **%s**.' % ext)
 
 
-@extension.command()
+@extension.command(hidden=True)
 @is_owner()
 async def reload(ext: str, use_prefix=True):
     ext = ('commands.' if use_prefix else '') + ext
@@ -90,7 +90,7 @@ async def reload(ext: str, use_prefix=True):
     await bot.say('Successfully reloaded extension **%s**.' % ext)
 
 
-@extension.command()
+@extension.command(hidden=True)
 @is_owner()
 async def refresh():
     counter = 0
@@ -133,7 +133,12 @@ async def refresh():
 @is_owner()
 async def _eval(ctx, *, code):
     """Evaluates code."""
-    python = '```py\n{}\n```'
+    python = '```py\n' \
+             '# Input\n' \
+             '{}\n\n' \
+             '# Output\n' \
+             '{}' \
+             '```'
 
     env = {
         'bot': bot,
@@ -155,7 +160,7 @@ async def _eval(ctx, *, code):
         await bot.say(python.format(type(e).__name__ + ': ' + str(e)))
         return
 
-    await bot.say(python.format(result))
+    await bot.say(python.format(code, result))
 
 
 def load_extension(ext: str):

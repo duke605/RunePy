@@ -4,7 +4,7 @@ from discord.ext import commands
 import re
 
 
-class PengLocs:
+class PenguinLocations:
 
     def __init__(self, bot):
         self.bot = bot
@@ -64,4 +64,4 @@ class PengLocs:
 
 
 def setup(bot):
-    bot.add_cog(PengLocs(bot))
+    bot.add_cog(PenguinLocations(bot))
