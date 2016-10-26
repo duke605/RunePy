@@ -28,6 +28,16 @@ async def on_ready():
     bot.whttp = ClientSession()
 
 
+@bot.event
+async def on_command_error(ex, ctx):
+
+    # Did not pass any arguments
+    if type(ex).__name__ == 'MissingRequiredArgument':
+        await bot.send_message(ctx.message.channel,
+                               'Missing arguments. Type `%s --help` to see what arguments you can pass.' %
+                               ctx.message.content)
+
+
 @bot.command()
 async def invite():
     await bot.say('https://discordapp.com/oauth2/authorize?client_id=%s&scope=bot&permissions=93184' % bot.user.id)

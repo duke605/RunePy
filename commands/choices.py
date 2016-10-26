@@ -23,8 +23,8 @@ class Choices:
             await self.bot.say('```%s```' % str(e))
             return
 
-        choice = random.SystemRandom().randint(0, len(args.choices) - 1)
-        await self.bot.say('**%s** has randomly been selected.' % args.choices[choice])
+        choice = args.choices[random.SystemRandom().randint(0, len(args.choices) - 1)]
+        await self.bot.say('**%s** has randomly been selected.' % choice)
 
 
 def setup(bot):
