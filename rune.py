@@ -4,20 +4,22 @@ from aiohttp import ClientSession
 from util.checks import is_owner
 import inspect
 import os
+import hashlib
 
 bot = commands.Bot(command_prefix='`')
+cog_hashes = {}
 
 
 @bot.event
 async def on_ready():
     startup_extensions = [fn.replace('.py', '') for fn in os.listdir('./commands') if fn.endswith('.py')]
 
-    for extension in startup_extensions:
+    for ext in startup_extensions:
         try:
-            bot.load_extension('commands.%s' % extension)
+            load_extension('commands.%s' % ext)
         except Exception as e:
             exc = '{}: {}'.format(type(e).__name__, e)
-            print('Failed to load extension {}\n{}'.format(extension, exc))
+            print('Failed to load extension {}\n{}'.format(ext, exc))
 
     print('\nLogged in as')
     print(bot.user.name)
@@ -42,7 +44,7 @@ async def load(ext: str, use_prefix=True):
     ext = ('commands.' if use_prefix else '') + ext
 
     try:
-        bot.load_extension(ext)
+        load_extension(ext)
     except Exception as e:
         exc = '{}: {}'.format(type(e).__name__, e)
         await bot.say('Failed to load extension {}\n{}'.format(ext, exc))
@@ -79,13 +81,52 @@ async def reload(ext: str, use_prefix=True):
         return
 
     try:
-        bot.load_extension(ext)
+        load_extension(ext)
     except Exception as e:
         exc = '{}: {}'.format(type(e).__name__, e)
         await bot.say('Failed to load extension {}\n{}'.format(ext, exc))
         return
 
     await bot.say('Successfully reloaded extension **%s**.' % ext)
+
+
+@extension.command()
+@is_owner()
+async def refresh():
+    counter = 0
+
+    # Looping through hashes and reloading the different ones
+    for key in cog_hashes:
+        hash = cog_hashes[key]
+        file = './%s.py' % key.replace('.', '/')
+
+        # Getting hash
+        with open(file, 'rb') as f:
+            file_hash = hashlib.sha1(f.read()).hexdigest()
+
+        # Comparing
+        if hash == file_hash:
+            continue
+
+        # Unloading
+        try:
+            bot.unload_extension(key)
+        except Exception as e:
+            exc = '{}: {}'.format(type(e).__name__, e)
+            await bot.say('Failed to unload extension {}\n{}'.format(key, exc))
+            continue
+
+        # reloading
+        try:
+            load_extension(key)
+        except Exception as e:
+            exc = '{}: {}'.format(type(e).__name__, e)
+            await bot.say('Failed to load extension {}\n{}'.format(key, exc))
+            continue
+
+        counter += 1
+
+    await bot.say('Reloaded **%s** cogs' % counter)
 
 
 @bot.command(name='eval', hidden=True, pass_context=True)
@@ -116,5 +157,11 @@ async def _eval(ctx, *, code):
 
     await bot.say(python.format(result))
 
+
+def load_extension(ext: str):
+    bot.load_extension(ext)
+
+    with open('./%s.py' % ext.replace('.', '/'), 'rb') as f:
+        cog_hashes[ext] = hashlib.sha1(f.read()).hexdigest()
 
 bot.run(BOT_TOKEN)

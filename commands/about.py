@@ -11,7 +11,7 @@ class About:
     async def about(self):
         await self.bot.say('__Author:__ Duke605\n'
                            '__Library:__ discord.py (%s)\n'
-                           '__Version:__ 1.1.5\n'
+                           '__Version:__ 1.1.6\n'
                            '__Github Repo:__ <https://github.com/duke605/RunePy>\n'
                            '__Official Server:__ <https://discord.gg/uaTeR6V>' % __version__)
 
