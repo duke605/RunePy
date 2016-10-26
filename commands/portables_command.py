@@ -1,20 +1,43 @@
 from secret import GOOGLE_API_KEY
 from util.globals import http
 from datetime import datetime
+from util.globals import bot
+from util.arguments import Arguments
+from shlex import split
 import re
 
-PORTS = ('fletcher', 'crafter', 'brazier', 'sawmill', 'forge', 'range', 'well')
-HOST = 'https://sheets.googleapis.com/v4/spreadsheets'
-SHEET_ID = '16Yp-eLHQtgY05q6WBYA2MDyvQPmZ4Yr3RHYiBCBj2Hc'
-SHEET_NAME = 'Home'
-RANGE = 'A16:G18'
-URL = '%s/%s/values/%s!%s?key=%s' % (HOST, SHEET_ID, SHEET_NAME, RANGE, GOOGLE_API_KEY)
+
+@bot.command(pass_context=True, aliases=['ports', 'port', 'portable'])
+async def portables(ctx, *, msg: str = ''):
+    ports = ('fletcher', 'crafter', 'brazier', 'sawmill', 'forge', 'range', 'well')
+
+    parser = Arguments(allow_abbrev=False, prog='portables')
+    parser.add_argument('portable', nargs='?', choices=ports, type=str.lower,
+                        help='Selects a type of portable to search for.')
+
+    await bot.send_typing(ctx.message.channel)
+
+    try:
+        args = parser.parse_args(split(msg))
+    except SystemExit:
+        await bot.say('```%s```' % parser.format_help())
+        return
+    except Exception as e:
+        await bot.say('```%s```' % str(e))
+        return
+
+    await execute(args, ports)
 
 
-async def execute(bot, args):
+async def execute(args, ports):
+    host = 'https://sheets.googleapis.com/v4/spreadsheets'
+    sheet_id = '16Yp-eLHQtgY05q6WBYA2MDyvQPmZ4Yr3RHYiBCBj2Hc'
+    sheet_name = 'Home'
+    range = 'A16:G18'
+    url = '%s/%s/values/%s!%s?key=%s' % (host, sheet_id, sheet_name, range, GOOGLE_API_KEY)
 
     # Getting cells
-    async with http.get(URL) as r:
+    async with http.get(url) as r:
 
         # Checking request
         if r.status != 200:
@@ -53,7 +76,7 @@ async def execute(bot, args):
 
     # Outputting only the portable the user wants
     if args.portable:
-        worlds = json['values'][1][PORTS.index(args.portable)]
+        worlds = json['values'][1][ports.index(args.portable)]
 
         await bot.say('**%ss**: %s\n'
                       '**Last Updated**: %s ago by %s'
@@ -63,7 +86,7 @@ async def execute(bot, args):
     # Outputting all portables
     m = ''
     for i, worlds in enumerate(json['values'][1]):
-        m += '**%ss**: %s\n' % (PORTS[i].capitalize(), worlds)
+        m += '**%ss**: %s\n' % (ports[i].capitalize(), worlds)
 
     m += '**Last Updated**: %s ago by %s' % (last_update, author)
     await bot.say(m)

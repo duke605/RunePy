@@ -1,10 +1,15 @@
 from bs4 import BeautifulSoup
 from util.globals import http
 from datetime import datetime
+from util.globals import bot
 import re
 
-async def execute(bot):
-    data = await _get_peng_locs(bot)
+
+@bot.command(aliases=['pengs', 'peng'], pass_context=True)
+async def penglocs(ctx):
+    await bot.send_typing(ctx.message.channel)
+
+    data = await _get_peng_locs()
 
     m = '__**World 60 Penguin Locations**__:\n\n'
     m += "```py\n'%s'```\n" % data['note']
@@ -14,7 +19,7 @@ async def execute(bot):
 
     await bot.say(m)
 
-async def _get_peng_locs(bot):
+async def _get_peng_locs():
     data = bot.pengdata if hasattr(bot, 'pengdata') else None
 
     # Checking if the bot contains a valid copy

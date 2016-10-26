@@ -1,8 +1,35 @@
 from util.runescape import get_users_stats
-from util.ascii_table import Table, Row, Column
+from util.ascii_table import Table, Column
 from util.image_util import text_to_image
+from util.globals import bot
+from util.arguments import Arguments
+from shlex import split
 
-async def execute(bot, args):
+
+@bot.command(pass_context=True, aliases=['stat'])
+async def stats(ctx, *, msg: str):
+    parser = Arguments(allow_abbrev=False, prog='stats')
+    parser.add_argument('-i', '--image', action='store_true',
+                        help='Displays the table as an image. (Useful for mobile)')
+    parser.add_argument('name', nargs='+', help='The name of the character to get stats for.')
+
+    await bot.send_typing(ctx.message.channel)
+
+    try:
+        args = parser.parse_args(split(msg))
+    except SystemExit:
+        await bot.say('```%s```' % parser.format_help())
+        return
+    except Exception as e:
+        await bot.say('```%s```' % str(e))
+        return
+
+    args.name = ' '.join(args.name)
+
+    await execute(args)
+
+
+async def execute(args):
     stats = await get_users_stats(args.name)
 
     # Checking if the request was a success

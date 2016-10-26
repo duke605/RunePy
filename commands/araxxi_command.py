@@ -1,7 +1,10 @@
 from math import floor
 from datetime import datetime
+from util.globals import bot
 
-async def execute(bot):
+
+@bot.command(aliases=['rax', 'araxxor', 'arax'])
+async def araxxi():
     araxxi_rotations = [
         'Minions',
         'Acid',

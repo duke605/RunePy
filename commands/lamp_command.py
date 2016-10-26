@@ -1,4 +1,27 @@
-async def execute(bot, args):
+from util.globals import bot
+from util.arguments import Arguments
+
+
+@bot.command()
+async def lamp(*, msg):
+    parser = Arguments(allow_abbrev=False, prog='lamp')
+    parser.add_argument('size', choices=['small', 'medium', 'large', 'huge'], help='The size of the lamp')
+    parser.add_argument('level', type=int, choices=range(1, 100),
+                        help='The level in your stat you wish to use the lamp on.')
+
+    try:
+        args = parser.parse_args(split(msg))
+    except SystemExit:
+        await bot.say('```%s```' % parser.format_help())
+        return
+    except Exception as e:
+        await bot.say('```%s```' % str(e))
+        return
+
+    await execute(args)
+
+
+async def execute(args):
     lamps = {
         'small': [62, 69, 77, 85, 93, 104, 123, 127, 194, 153, 170, 188, 205, 229, 252, 261, 274, 285, 298, 310, 324, 337, 352, 367, 384, 399, 405, 414, 453, 473, 493, 514, 536, 559, 583, 608, 635, 662, 691, 720, 752, 784, 818, 853, 889, 929, 970, 1012, 1055, 1101, 1148, 1200, 1249, 1304, 1362, 1422, 1485, 1546, 1616, 1684, 1757, 1835, 1911, 2004, 2108, 2171, 2269, 2379, 2470, 2592, 2693, 2809, 2946, 3082, 3213, 3339, 3495, 3646, 3792, 3980, 4166, 4347, 4521, 4762, 4918, 5033, 5375, 5592, 5922, 6121, 6451, 6614, 6928, 7236, 7532, 8064, 8347, 8602],
         'medium': [125, 138, 154, 170, 186, 208, 246, 254, 388, 307, 340, 376, 411, 458, 504, 523, 548, 570, 596, 620, 649, 674, 704, 735, 768, 798, 810, 828, 906, 946, 986, 1028, 1072, 1118, 1166, 1217, 1270, 1324, 1383, 1441, 1504, 1569, 1636, 1707, 1779, 1858, 1941, 2025, 2110, 2202, 2296, 2400, 2499, 2609, 2724, 2844, 2970, 3092, 3233, 3368, 3515, 3671, 3822, 4009, 4216, 4343, 4538, 4758, 4940, 5185, 5386, 5618, 5893, 6164, 6427, 6679, 6990, 7293, 7584, 7960, 8332, 8695, 9043, 9524, 9837, 10066, 10751, 11185, 11845, 12243, 12903, 13229, 13857, 14472, 15065, 16129, 16695, 17204],
