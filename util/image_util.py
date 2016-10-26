@@ -1,7 +1,7 @@
 from secret import IMGUR_TOKEN
 from io import BytesIO
-from util.globals import http
 from PIL import Image, ImageFont, ImageDraw
+import aiohttp as http
 
 async def upload_to_imgur(buf: BytesIO):
     """

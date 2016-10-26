@@ -1,9 +1,9 @@
-from util.globals import http
 from json import loads
 from urllib.parse import quote
 from collections import OrderedDict
 from db.models import objects, Item
 from datetime import datetime
+import aiohttp as http
 import math
 import asyncio
 import re
