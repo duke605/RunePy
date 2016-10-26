@@ -26,7 +26,7 @@ class Roll:
             return
 
         x = random.SystemRandom().randint(1, args.number)
-        await self.bot.say('\U0001f3b2 Rolled a **{:,}**'.format(x))
+        await self.bot.say('\U0001f3b2 Rolled a **{:,}**.'.format(x))
 
 
 def setup(bot):
