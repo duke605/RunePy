@@ -13,7 +13,7 @@ class About:
                            '__Library:__ discord.py (%s)\n'
                            '__Version:__ 1.1.6\n'
                            '__Github Repo:__ <https://github.com/duke605/RunePy>\n'
-                           '__Official Server:__ <https://discord.gg/uaTeR6V>' % __version__)
+                           '__Official Server:__ <https://discord.gg/q3UNHq8>' % __version__)
 
 
 def setup(bot):
