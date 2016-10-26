@@ -14,7 +14,6 @@ bot = commands.Bot(command_prefix='`', )
 
 
 class Arguments(argparse.ArgumentParser):
-
     def error(self, message):
         raise RuntimeError(message)
 
@@ -29,7 +28,8 @@ async def on_ready():
 @bot.command(pass_context=True, aliases=['stat'])
 async def stats(ctx, *, msg: str):
     parser = Arguments(allow_abbrev=False, prog='stats')
-    parser.add_argument('-i', '--image', action='store_true', help='Displays the table as an image. (Useful for mobile)')
+    parser.add_argument('-i', '--image', action='store_true',
+                        help='Displays the table as an image. (Useful for mobile)')
     parser.add_argument('name', nargs='+', help='The name of the character to get stats for.')
 
     await bot.send_typing(ctx.message.channel)
@@ -81,14 +81,14 @@ async def vos(ctx):
 @bot.command(aliases=['info'])
 async def about():
     await bot.say('__Author:__ Duke605\n'
-                  '__Library:__ discord.py ('+__version__+')\n'
-                  '__Version:__ 1.0.10\n'
-                  '__Github Repo:__ <https://github.com/duke605/RunePy>\n'
-                  '__Official Server:__ <https://discord.gg/uaTeR6V>')
+                  '__Library:__ discord.py (' + __version__ + ')\n'
+                                                              '__Version:__ 1.0.10\n'
+                                                              '__Github Repo:__ <https://github.com/duke605/RunePy>\n'
+                                                              '__Official Server:__ <https://discord.gg/uaTeR6V>')
 
 
 @bot.command(pass_context=True, aliases=['ports', 'port', 'portable'])
-async def portables(ctx, *, msg: str=''):
+async def portables(ctx, *, msg: str = ''):
     parser = Arguments(allow_abbrev=False, prog='portables')
     parser.add_argument('portable', nargs='?', choices=portables_command.PORTS, type=str.lower,
                         help='Selects a type of portable to search for.')
@@ -109,7 +109,6 @@ async def portables(ctx, *, msg: str=''):
 
 @bot.command(pass_context=True, aliases=['clean'])
 async def clear(ctx, *, msg='100'):
-
     # Tests if a number is between certain constraints
     def test(s):
         s = int(s)
@@ -136,16 +135,11 @@ async def clear(ctx, *, msg='100'):
         return
 
     # Getting messages
-    counter = 0
-    async for m in bot.logs_from(ctx.message.channel, args.num):
-
-        # Deleting my messages
-        if m.author == bot.user:
-            counter += 1
-            await bot.delete_message(m)
+    deleted = await bot.purge_from(ctx.message.channel, limit=args.num, check=lambda m: m.author == bot.user or
+                                                                                        m.content.startswith('`'))
 
     # Displaying the number of messages deleted
-    m = await bot.say('Deleted **{:,}** messages.'.format(counter))
+    m = await bot.say('Deleted **{:,}** messages.'.format(len(deleted)))
     await asyncio.sleep(5)
     await bot.delete_message(m)
 
@@ -158,7 +152,7 @@ async def penglocs(ctx):
 
 @bot.command(pass_context=True, aliases=['exp'])
 async def xp(ctx, *, msg):
-    parser = Arguments(allow_abbrev=False,prog='xp')
+    parser = Arguments(allow_abbrev=False, prog='xp')
     parser.add_argument('level1', type=int, help='The lower of the two levels.')
     parser.add_argument('level2', type=int, help='The higher of the two levels.')
 
@@ -192,7 +186,7 @@ async def xp(ctx, *, msg):
 
 @bot.command()
 async def invite():
-    await bot.say('https://discordapp.com/oauth2/authorize?client_id=%s&scope=bot&permissions=84992' % bot.user.id)
+    await bot.say('https://discordapp.com/oauth2/authorize?client_id=%s&scope=bot&permissions=93184' % bot.user.id)
 
 
 @bot.command()
@@ -253,5 +247,6 @@ async def lamp(*, msg):
 @bot.command(aliases=['rax', 'araxxor', 'arax'])
 async def araxxi():
     await araxxi_command.execute(bot)
+
 
 bot.run(BOT_TOKEN)
