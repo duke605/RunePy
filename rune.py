@@ -36,6 +36,9 @@ async def on_command_error(ex, ctx):
         await bot.send_message(ctx.message.channel,
                                'Missing arguments. Type `%s --help` to see what arguments you can pass.' %
                                ctx.message.content)
+        return
+
+    print(ex)
 
 
 @bot.command()
