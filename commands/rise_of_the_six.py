@@ -9,7 +9,7 @@ class RiseOfTheSix:
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(aliases=['riseofthesix'])
+    @commands.command(aliases=['riseofthesix'], description='Shows the current rotation for Rise of the Six.')
     async def rots(self):
         names = {
             'A': 'Ahrim',

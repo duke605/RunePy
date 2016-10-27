@@ -10,7 +10,9 @@ class Imagify:
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(pass_context=True, aliases=['image'])
+    @commands.command(pass_context=True, aliases=['image'],
+                      description='Searches through the chat to find a table-like message if an id is not provided and '
+                                  'turns the table into an image. (Useful for mobile users)')
     async def imagify(self, ctx, *, msg=''):
         parser = Arguments(allow_abbrev=False, prog='imagify')
         parser.add_argument('id', nargs='?', type=int,

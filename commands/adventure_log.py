@@ -10,7 +10,8 @@ class AdventureLog:
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(pass_context=True, aliases=['adventurelog', 'advlog'])
+    @commands.command(pass_context=True, aliases=['adventurelog', 'advlog'],
+                      description='Shows the adventurers log for a given user.')
     async def alog(self, ctx, *, msg):
         parser = Arguments(allow_abbrev=False, prog='alog')
         parser.add_argument('username', nargs='+', help='Your Runescape username.')

@@ -8,7 +8,7 @@ class Sinkhole:
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command()
+    @commands.command(description='Shows when the next sinkhole will spawn.')
     async def sinkhole(self):
         d = datetime.utcnow()
         seconds_until = 3600 - (d.minute + 30) % 60 * 60 - d.second

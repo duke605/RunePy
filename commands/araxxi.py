@@ -8,7 +8,7 @@ class Arraxi:
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(aliases=['rax', 'araxxor', 'arax'])
+    @commands.command(aliases=['rax', 'araxxor', 'arax'], description='Shows the current rotation for Arraxi/Araxxor.')
     async def araxxi(self):
         araxxi_rotations = [
             'Minions',

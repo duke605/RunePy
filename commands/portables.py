@@ -11,7 +11,7 @@ class Portables:
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(pass_context=True, aliases=['ports', 'port', 'portable'])
+    @commands.command(pass_context=True, aliases=['ports', 'port', 'portable'], description='Shows portable locations.')
     async def portables(self, ctx, *, msg: str = ''):
         ports = ('fletcher', 'crafter', 'brazier', 'sawmill', 'forge', 'range', 'well')
 

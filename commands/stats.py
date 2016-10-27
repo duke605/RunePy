@@ -11,7 +11,7 @@ class Stats:
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(pass_context=True, aliases=['stat'])
+    @commands.command(pass_context=True, aliases=['stat'], description='Shows Runescape stats for a given user.')
     async def stats(self, ctx, *, msg: str):
         parser = Arguments(allow_abbrev=False, prog='stats')
         parser.add_argument('-i', '--image', action='store_true',

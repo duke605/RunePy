@@ -9,7 +9,7 @@ class JackOfTrades:
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command()
+    @commands.command(description='Shows the amount of exp gained from using a Jack of Trades aura.')
     async def jot(self, *, msg):
         parser = Arguments(allow_abbrev=False, prog='jot')
         parser.add_argument('type', choices=['legendary', 'normal', 'master', 'supreme'], help='The type the aura.')

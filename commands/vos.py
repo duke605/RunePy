@@ -10,7 +10,7 @@ class VoiceOfSeren:
         self.bot = bot
         self.cache = {}
 
-    @commands.command(pass_context=True, aliases=['voice'])
+    @commands.command(pass_context=True, aliases=['voice'], description='Shows information about the voice of Seren.')
     async def vos(self, ctx):
         districts = ('Cadarn', 'Amlodd', 'Ithell', 'Hefin', 'Meilyr', 'Trahaearn', 'Iorwerth', 'Crwys')
 

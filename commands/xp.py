@@ -10,7 +10,7 @@ class Exp:
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(pass_context=True, aliases=['exp'])
+    @commands.command(pass_context=True, aliases=['exp'], description='Shows the amount of exp between 2 given levels.')
     async def xp(self, ctx, *, msg):
         parser = Arguments(allow_abbrev=False, prog='xp')
         parser.add_argument('level1', type=between(1, 120), help='The lower of the two levels.')

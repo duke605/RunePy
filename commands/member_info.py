@@ -9,7 +9,7 @@ class MemberInfo:
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(aliases=['userinfo'], pass_context=True)
+    @commands.command(aliases=['userinfo'], pass_context=True, description='Shows information about a user.')
     async def memberinfo(self, ctx, *, msg):
         parser = Arguments(allow_abbrev=False, prog='memberinfo')
         parser.add_argument('username', nargs='+', help='The name of the user to the the info of.')

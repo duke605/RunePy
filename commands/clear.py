@@ -10,7 +10,8 @@ class Clear:
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(pass_context=True, aliases=['clean'])
+    @commands.command(pass_context=True, aliases=['clean'],
+                      description='Clears any messages from this bot as well as command calls.')
     async def clear(self, ctx, *, msg='100'):
 
         # Tests if a number is between certain constraints

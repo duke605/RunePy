@@ -7,6 +7,7 @@ import os
 import hashlib
 
 bot = commands.Bot(command_prefix='`')
+bot.remove_command('help')
 cog_hashes = {}
 
 

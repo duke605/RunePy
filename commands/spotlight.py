@@ -8,7 +8,8 @@ class Spotlight:
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(aliases=['featured', 'sl'])
+    @commands.command(aliases=['featured', 'sl'],
+                      description='Shows the currently featured minigame and that the next one will be.')
     async def spotlight(self):
         minigames = ('Pest Control', 'Soul Wars', 'Fist of Guthix', 'Barbarian Assault', 'Conquest', 'Fishing Trawler',
                      'The Great Orb Project', 'Flash Powder Factory', 'Castle Wars', 'Stealing Creation',

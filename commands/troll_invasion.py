@@ -9,7 +9,8 @@ class TrollInvasion:
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(aliases=['troll', 'trollinvasion'])
+    @commands.command(aliases=['troll', 'trollinvasion'],
+                      description='Shows the amount of exp gained from completing troll invasion.')
     async def invasion(self, *, msg):
         parser = Arguments(allow_abbrev=False, prog='invasion')
         parser.add_argument('level', type=choices.between(1, 120), help='The level to get the reward XP for.')

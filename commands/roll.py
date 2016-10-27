@@ -10,7 +10,7 @@ class Roll:
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command()
+    @commands.command(description='Picks a random number between 1 and a given input.')
     async def roll(self, *, msg):
         parser = Arguments(allow_abbrev=True, prog='roll')
         parser.add_argument('number', type=choices.between(2, 2**31-1),

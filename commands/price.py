@@ -15,7 +15,8 @@ class Price:
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(pass_context=True)
+    @commands.command(pass_context=True,
+                      description='Shows price information about an item as well as price history and alch prices.')
     async def price(self, ctx, *, msg: str):
         parser = Arguments(allow_abbrev=False, prog='price')
         parser.add_argument('name', nargs='+', help='The name if the item to get the price for.')

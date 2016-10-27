@@ -10,7 +10,8 @@ class Vorago:
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(aliases=['rago'])
+    @commands.command(aliases=['rago'],
+                      description='Shows the current rotation of Vorago and what the next one will be.')
     async def vorago(self, *, msg=''):
         parser = Arguments(allow_abbrev=False, prog='vorago')
         parser.add_argument('-H', '--hard-mode', action='store_true', help='Shows hardmode rotations.')

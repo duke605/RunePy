@@ -8,7 +8,7 @@ class Reset:
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command()
+    @commands.command(description='Shows daily reset is.')
     async def reset(self):
         now = datetime.utcnow()
         then = datetime.utcnow().replace(hour=23, minute=59, second=59)

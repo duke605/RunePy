@@ -8,7 +8,7 @@ class Circus:
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command()
+    @commands.command(description='Shows where the circus is and where the next one will be.')
     async def circus(self):
         locations = ('Tree Gnome Stronghold', "Seers' Village", 'Catherby', 'Taverley', 'Edgeville', 'Falador',
                      'Rimmington', 'Draynor Village', 'Al Kharid', 'Lumbridge', 'Lumber Yard', "Gertrude's House")

@@ -9,7 +9,7 @@ class Choices:
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(aliases=['choose'])
+    @commands.command(aliases=['choose'], description='Randomly picks a 1 of the given choices.')
     async def choices(self, *, msg):
         parser = Arguments(allow_abbrev=False, prog='choices')
         parser.add_argument('choices', nargs='+', help='The choices to randomly pick from.')

@@ -10,7 +10,8 @@ class PenguinLocations:
         self.bot = bot
         self.cache = {}
 
-    @commands.command(aliases=['pengs', 'peng', 'penguin', 'penguins'], pass_context=True)
+    @commands.command(aliases=['pengs', 'peng', 'penguin', 'penguins'], pass_context=True,
+                      description='Shows the location of penguins in world 60.')
     async def penglocs(self, ctx):
         await self.bot.send_typing(ctx.message.channel)
 

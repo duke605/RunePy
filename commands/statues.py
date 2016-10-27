@@ -10,7 +10,7 @@ class Statues:
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command()
+    @commands.command(description='Shows the amount of exp gained from doing god statues.')
     async def statues(self, *, msg):
         parser = Arguments(allow_abbrev=False, prog='statues')
         parser.add_argument('username', help='Your runescape username.')

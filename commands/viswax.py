@@ -11,7 +11,8 @@ class VisWax:
         self.bot = bot
         self.cache = {}
 
-    @commands.command(pass_context=True, aliases=['wax'])
+    @commands.command(pass_context=True, aliases=['wax'],
+                      description='Shows the combination of runes needed for the Rune Goldberg Machine.')
     async def viswax(self, ctx):
         await self.bot.send_typing(ctx.message.channel)
         combo = await self.get_rune_combo()

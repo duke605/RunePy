@@ -7,7 +7,8 @@ class BigChinchompa:
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(aliases=['chompa', 'bigchinchompa'])
+    @commands.command(aliases=['chompa', 'bigchinchompa'],
+                      description='Shows the next time the Big Chinchompa will spawn.')
     async def bigchin(self):
         dt = datetime.utcnow()
         seconds_unti = 3600 - (dt.minute + 30) % 60 * 60 - dt.second
