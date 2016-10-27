@@ -16,6 +16,25 @@ STAT_ORDER = ('overall', 'attack', 'defence', 'strength', 'constitution', 'range
               'dungeoneering', 'divination', 'invention')
 
 
+async def get_member_info(username: str):
+
+    # Getting info about memeber
+    url = 'http://services.runescape.com/m=website-data/playerDetails.ws?names=["%s"]&' \
+          'callback=jQuery000000000000000_0000000000&_=0'
+    async with http.get(url % username) as r:
+        json = await r.text()
+
+    json = loads(re.search('jQuery000000000000000_0000000000\(\[(.*)\]\);', json).group(1))
+
+    return {
+        'recruiting': json.get('recruiting'),
+        'name': json.get('name'),
+        'clan': json.get('clan'),
+        'title': json.get('title'),
+        'isSuffix': json.get('isSuffix')
+    }
+
+
 async def get_users_alog(username: str):
     """
     Gets the a user's adventurer log
