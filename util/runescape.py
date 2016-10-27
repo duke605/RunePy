@@ -4,6 +4,7 @@ from collections import OrderedDict
 from db.models import objects, Item
 from datetime import datetime
 from bs4 import BeautifulSoup
+from xml.etree import ElementTree
 import aiohttp as http
 import math
 import asyncio
@@ -13,6 +14,39 @@ STAT_ORDER = ('overall', 'attack', 'defence', 'strength', 'constitution', 'range
               'woodcutting', 'fletching', 'fishing', 'firemaking', 'crafting', 'smithing', 'mining', 'herblore',
               'agility', 'thieving', 'slayer', 'farming', 'runecrafting', 'hunter', 'construction', 'summoning',
               'dungeoneering', 'divination', 'invention')
+
+
+async def get_users_alog(username: str):
+    """
+    Gets the a user's adventurer log
+
+    :param username: The name of the user
+    """
+
+    url = 'http://services.runescape.com/m=adventurers-log/a=13/rssfeed?searchName=%s'
+    async with http.get(url % username) as r:
+
+        # Checking if user found
+        if r.status != 200:
+            return None
+
+        text = await r.text()
+
+    xml = ElementTree.fromstring(text)[0]
+    items = []
+
+    # Looping through all items
+    for item in xml.iter('item'):
+
+        i = {
+            'title': re.sub(r'[0-9]+', lambda m: '{:,}'.format(int(m.group())), item[0].text),
+            'description': re.sub(r'[0-9]+', lambda m: '{:,}'.format(int(m.group())), item[1].text.strip()),
+            'date': datetime.strptime(item[3].text, '%a, %d %b %Y %H:%M:%S %Z')
+        }
+
+        items.append(i)
+
+    return items
 
 
 def add_metric_suffix(num: int):
