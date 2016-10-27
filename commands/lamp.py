@@ -40,7 +40,7 @@ class Lamp:
         lamps = Lamp.get_lamp_dict()
 
         xp = lamps[args.size][min(97, args.level - 1)]
-        await self.bot.say('A **{}** lamp at level **{:,}** would yield **{:,}** experience.'. format(args.size.lower(),
+        await self.bot.say('A **{}** lamp at level **{:,}** would yield **{:,}** XP.'. format(args.size.lower(),
                                                                                                       args.level, xp))
 
 
