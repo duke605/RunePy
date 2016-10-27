@@ -2,6 +2,7 @@ from util.arguments import Arguments
 from shlex import split
 from util import runescape
 from discord.ext import commands
+from util.choices import between
 
 
 class Exp:
@@ -12,8 +13,8 @@ class Exp:
     @commands.command(pass_context=True, aliases=['exp'])
     async def xp(self, ctx, *, msg):
         parser = Arguments(allow_abbrev=False, prog='xp')
-        parser.add_argument('level1', type=int, help='The lower of the two levels.')
-        parser.add_argument('level2', type=int, help='The higher of the two levels.')
+        parser.add_argument('level1', type=between(1, 120), help='The lower of the two levels.')
+        parser.add_argument('level2', type=between(1, 120), help='The higher of the two levels.')
 
         await self.bot.send_typing(ctx.message.channel)
 
@@ -24,15 +25,6 @@ class Exp:
             return
         except Exception as e:
             await self.bot.say('```%s```' % str(e))
-            return
-
-        # Validating
-        if args.level1 < 1 or args.level1 > 120:
-            await self.bot.say('Level1 must be between 1 and 120.')
-            return
-
-        if args.level2 < 1 or args.level2 > 120:
-            await self.bot.say('Level1 must be between 1 and 120.')
             return
 
         if args.level1 >= args.level2:
