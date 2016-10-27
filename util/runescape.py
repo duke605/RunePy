@@ -240,7 +240,7 @@ async def get_item_for_name(name: str):
     item.price = list(history['daily'].values())[-1]
     item.name = resolved['name']
     item.id = resolved['id']
-    item.updated_at = datetime.utcnow().date()
+    item.updated_at = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
     item.updated_at_rd = 0
 
     return item, history

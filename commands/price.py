@@ -2,6 +2,7 @@ from util.runescape import get_item_for_name, get_item_alch_prices, add_metric_s
 from matplotlib import pyplot, ticker
 from datetime import datetime
 from io import BytesIO
+from db.models import Item, objects
 from util.image_util import upload_to_imgur
 from discord.ext import commands
 from util.arguments import Arguments
@@ -99,6 +100,11 @@ class Price:
                 message += '\n%s' % link
 
             await self.bot.edit_message(m, message)
+
+        # Checking if item is in DB
+        if not await objects.execute(Item.select().where(Item.id == item.id).limit(1)):
+            r = await objects.create(Item, id=item.id, price=item.price, updated_at=item.updated_at,
+                                     updated_at_rd=item.updated_at_rd, name=item.name)
 
     @staticmethod
     async def plot_history(history, months, name):
