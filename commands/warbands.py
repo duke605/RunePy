@@ -8,7 +8,7 @@ class Warbands:
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(aliases=['wbs', 'wwbs', 'warband', 'warbands'],
+    @commands.command(aliases=['wbs', 'wwbs', 'warband'],
                       description='Shows the time till the next wilderness warband begins.')
     async def warbands(self):
         monday = datetime.utcnow().replace(hour=2, minute=0, second=0, microsecond=0)
