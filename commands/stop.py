@@ -11,6 +11,7 @@ class Stop:
     @commands.command(hidden=True)
     @is_owner()
     async def stop(self):
+        await self.bot.say('Stopping...')
         await self.bot.logout()
         sys.exit(99)
 

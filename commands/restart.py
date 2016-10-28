@@ -11,6 +11,7 @@ class Restart:
     @commands.command(hidden=True)
     @is_owner()
     async def restart(self):
+        await self.bot.say('Restarting...')
         await self.bot.logout()
         await sys.exit()
 
