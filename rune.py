@@ -171,7 +171,7 @@ async def _eval(ctx, *, code):
         if inspect.isawaitable(result):
             result = await result
     except Exception as e:
-        await bot.say(python.format(type(e).__name__ + ': ' + str(e)))
+        await bot.say(python.format(code, type(e).__name__ + ': ' + str(e)))
         return
 
     await bot.say(python.format(code, result))

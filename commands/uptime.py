@@ -12,16 +12,10 @@ class Uptime:
     async def uptime(self):
         _uptime = (datetime.now() - self.start_time).total_seconds()
 
-        days = _uptime / 60 / 60 / 24
-        hours = days % 1 * 60
-        minutes = hours % 1 * 60
-        seconds = minutes % 1 * 60
-
-        # Cleaning
-        days = int(days)
-        hours = int(hours)
-        minutes = int(minutes)
-        seconds = int(round(seconds))
+        days = int(_uptime / 86400)
+        hours = int(_uptime % 86400 / 3600)
+        minutes = int(_uptime % 86400 % 3600 / 60)
+        seconds = int(round(_uptime % 86400 % 3600 % 60))
 
         m = 'Active for'
 
