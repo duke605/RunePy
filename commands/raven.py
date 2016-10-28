@@ -12,7 +12,8 @@ class Raven:
         days_until = (datetime.utcnow() - datetime(2014, 10, 4)).days % 13
 
         if days_until == 0:
-            m = 'There currently is a raven in Prifddinas!'
+            m = 'There currently is a raven in Prifddinas!\n'
+            m += 'Check <https://twitter.com/hashtag/ravensworn> for locations.'
         else:
             m = 'There currently is no raven in Prifddinas. The next one spawns in **%s** day%s.' \
                 % (13 - days_until, 's' if 13 - days_until != 1 else '')
