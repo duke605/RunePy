@@ -16,7 +16,46 @@ STAT_ORDER = ('overall', 'attack', 'defence', 'strength', 'constitution', 'range
               'dungeoneering', 'divination', 'invention')
 
 
+async def get_players_online():
+
+    # Getting total players
+    async with http.get('http://www.runescape.com/player_count.js?varname=iPlayerCount&callback=jQuery111007968696597581173_1477635539644&_=1477635539645') as r:
+        text = await r.text()
+
+    total = int(re.search('jQuery111007968696597581173_1477635539644\((\d+)\);', text).group(1))
+
+    # Getting classic
+    async with http.get('http://www.runescape.com/classicapplet/playclassic.ws') as r:
+        text = await r.text()
+
+    soup = BeautifulSoup(text, 'html.parser')
+    classic_players = 0
+
+    # Getting classic world players
+    for player_count in soup.find_all('span', attrs={'class': 'classic-worlds__players'}):
+        classic_players += int(player_count.text.strip().split(' ')[0].replace(',', ''))
+
+    # Getting OSRS players
+    async with http.get('http://oldschool.runescape.com/?jptg=ia&jptv=navbar') as r:
+        text = await r.text()
+
+    soup = BeautifulSoup(text, 'html.parser')
+    osrs_players = int(re.search('[0-9]+', soup.find('p', attrs={'class': 'player-count'}).text.strip()).group(0))
+
+    return {
+        'rsc': classic_players,
+        'osrs': osrs_players,
+        'total': total,
+        'rs3': total - (classic_players + osrs_players)
+    }
+
+
 async def get_member_info(username: str):
+    """
+    Gets information about a runescape player
+
+    :param username: The username of the player
+    """
 
     # Getting info about memeber
     url = 'http://services.runescape.com/m=website-data/playerDetails.ws?names=["%s"]&' \
