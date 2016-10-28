@@ -1,5 +1,5 @@
 from discord.ext import commands
-from datetime import datetime
+from datetime import datetime, timedelta
 from bs4 import BeautifulSoup
 from util.ascii_table import Table, Column
 import re
@@ -71,7 +71,7 @@ class VisWax:
 
             self.cache['second'].append((rune, percent))
 
-        self.cache['expire'] = datetime.utcnow().replace(hour=23, minute=59, second=59)
+        self.cache['expire'] = datetime.utcnow() + timedelta(minutes=30)
         return self.cache
 
 
