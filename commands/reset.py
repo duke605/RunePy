@@ -28,13 +28,13 @@ class Reset:
         # Building message
         m = ''
         if hours > 0:
-            m += ' **{:,}** hour{}'.format(hours, 's' if hours > 1 else '')
+            m += ' **{:,}** hour{}'.format(hours, 's' if hours == 1 else '')
 
         if minutes > 0:
-            m += ' **{:,}** minute{}'.format(minutes, 's' if minutes > 1 else '')
+            m += ' **{:,}** minute{}'.format(minutes, 's' if minutes == 1 else '')
 
         if seconds > 0:
-            m += ' **{:,}** second{}'.format(seconds, 's' if seconds > 1 else '')
+            m += ' **{:,}** second{}'.format(seconds, 's' if seconds == 1 else '')
 
         await self.bot.say('The game will reset in%s.' % m)
 

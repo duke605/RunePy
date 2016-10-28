@@ -24,7 +24,7 @@ class Circus:
         # Building message
         m = 'The circus is currently located at **%s**.\n' % locations[current_location]
         m += 'The next location will be **%s** in **%s** day%s.\n' % (locations[next_location], days_until_next,
-                                                                      's' if days_until_next > 1 else '')
+                                                                      's' if days_until_next == 1 else '')
 
         await self.bot.say(m)
 

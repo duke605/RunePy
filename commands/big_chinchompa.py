@@ -18,7 +18,7 @@ class BigChinchompa:
             await self.bot.say('The next Big Chinchompa will start in **1** hour.')
         else:
             await self.bot.say('The next Big Chinchompa will start in **%s** minute%s.'
-                               % (minutes_unti, 's' if minutes_unti > 1 else ''))
+                               % (minutes_unti, 's' if minutes_unti == 1 else ''))
 
 
 def setup(bot):

@@ -21,7 +21,7 @@ class PenguinLocations:
         m += "```py\n'%s'```\n" % data['note']
         for i, loc in enumerate(data['worlds']):
             m += '%s.) __**%s**__: %s (%s point%s)\n' \
-                 '%s\n\n' % (i+1, loc['title'], loc['type'], loc['points'], 's' if loc['points'] > 1 else '', loc['desc'])
+                 '%s\n\n' % (i+1, loc['title'], loc['type'], loc['points'], 's' if loc['points'] == 1 else '', loc['desc'])
 
         await self.bot.say(m)
 
