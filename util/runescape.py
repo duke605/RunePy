@@ -296,7 +296,7 @@ async def get_item_for_name(name: str):
     return item, history
 
 
-def exp_between_levels(level1: int, level2: int):
+def get_exp_between_levels(level1: int, level2: int):
     """
     Gets the amoount of exp between two levels
 
@@ -312,4 +312,25 @@ def exp_between_levels(level1: int, level2: int):
             exp1 += math.floor(i + 300 * 2**(i/7))
         exp2 += math.floor(i + 300 * 2**(i/7))
 
-    return math.floor(exp2 / 4) - math.floor(2/4)
+    return math.floor(exp2 / 4) - math.floor(exp1 / 4)
+
+
+def get_level_at_exp(target: int):
+    """
+    Gets a virtual level at the exp
+
+    :param exp: The exp... obv
+    :return:
+    The virtual level for the exp
+    """
+
+    exp = 0
+    for i in range(1, 120):
+        exp += math.floor(i + 300 * 2**(i/7))
+
+        # Checking if exp is at or above exp target
+        if (math.floor(exp / 4) - 1) >= target:
+            return i
+
+    return 120
+

@@ -32,7 +32,7 @@ class Exp:
             return
 
         await self.bot.say('The total experience between levels **{:,}** and **{:,}** is **{:,}**.'
-                      .format(args.level1, args.level2, runescape.exp_between_levels(args.level1, args.level2)))
+                           .format(args.level1, args.level2, runescape.get_exp_between_levels(args.level1, args.level2)))
 
 
 def setup(bot):

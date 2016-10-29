@@ -1,4 +1,4 @@
-from util.runescape import get_users_stats
+from util.runescape import get_users_stats, get_level_at_exp
 from util.ascii_table import Table, Column
 from util.image_util import text_to_image
 from discord.ext import commands
@@ -15,9 +15,11 @@ class Stats:
                       description='Shows Runescape stats for a given user.')
     async def stats(self, ctx, *, msg: str):
         parser = Arguments(allow_abbrev=False, prog='stats')
+        parser.add_argument('name', nargs='+', help='The name of the character to get stats for.')
+        parser.add_argument('-v', '--virtual', action='store_true',
+                            help='Shows that your level would be if it wasn\'t capped at 99.')
         parser.add_argument('-i', '--image', action='store_true',
                             help='Displays the table as an image. (Useful for mobile)')
-        parser.add_argument('name', nargs='+', help='The name of the character to get stats for.')
 
         await self.bot.send_typing(ctx.message.channel)
 
@@ -51,7 +53,7 @@ class Stats:
             stat = stats[key]
             table.add_row(
                 key.capitalize(),
-                Column(stat['level'], 2),
+                Column(stat['level'] if not args.virtual else get_level_at_exp(stat['exp']), 2),
                 Column('{:,}'.format(stat['exp']), 2),
                 Column('{:,}'.format(stat['rank']), 2))
 

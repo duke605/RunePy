@@ -41,7 +41,7 @@ async def on_ready():
 
 @bot.event
 async def on_message(m):
-    if m.channel.server:
+    if not m.channel.is_private:
         bot.command_prefix = bot.triggers.get(m.channel.server.id, '`')
     else:
         bot.command_prefix = '`'
