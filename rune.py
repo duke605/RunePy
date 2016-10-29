@@ -5,9 +5,15 @@ from util.checks import is_owner
 import inspect
 import os
 import hashlib
+import sys
+import discord
 
 bot = commands.Bot(command_prefix='`')
+bot.triggers = {'110373943822540800': '&'}
 bot.remove_command('help')
+bot.whttp = ClientSession()
+bot.usage = {'total': 0}
+
 cog_hashes = {}
 
 
@@ -21,20 +27,33 @@ async def on_ready():
         except Exception as e:
             exc = '{}: {}'.format(type(e).__name__, e)
             print('Failed to load extension {}\n{}'.format(ext, exc))
-
     print('\nLogged in as')
     print(bot.user.name)
     print(bot.user.id)
     print('------')
-    bot.whttp = ClientSession()
-    bot.usage = {'total': 0}
+
+    # Checking if recovering from error
+    if sys.argv[1] == '99':
+        await bot.send_message(discord.Object(id='241984924616359936'), 'Restarted.')
+    elif sys.argv[1] != '98' and sys.argv[1] != '-1':
+        await bot.send_message(discord.Object(id='241984924616359936'), 'Recovered from a crash.')
+
+
+@bot.event
+async def on_message(m):
+    if m.channel.server:
+        bot.command_prefix = bot.triggers.get(m.channel.server.id, '`')
+    else:
+        bot.command_prefix = '`'
+
+    await bot.process_commands(m)
 
 
 @bot.event
 async def on_command(command, ctx):
 
     # Not tracking if in testing
-    if ctx.message.channel.id == 240109807627927552:
+    if ctx.message.author.id == '136856172203474944':
         return
 
     bot.usage['total'] += 1
@@ -51,7 +70,18 @@ async def on_command_error(ex, ctx):
                                ctx.message.content)
         return
 
-    print(ex)
+    # Command does not exist
+    if type(ex).__name__ == 'CommandNotFound':
+        return
+
+    if type(ex).__name__ == 'CommandInvokeError':
+        m = 'An error occurred when executing a command.```yml\n' \
+            'Command: %s\n' \
+            'Exception: %s\n\n' \
+            'Trace:\n' \
+            '%s```' % (ctx.message.content, type(ex.original).__name__, str(ex.original))
+
+        await bot.send_message(discord.Object(id='241984924616359936'), m)
 
 
 @bot.command()

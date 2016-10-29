@@ -1,6 +1,7 @@
 from discord.ext import commands
 from util.checks import is_owner
 import sys
+import discord
 
 
 class Restart:
@@ -12,8 +13,12 @@ class Restart:
     @is_owner()
     async def restart(self):
         await self.bot.say('Restarting...')
+
+        # Telling bot log
+        await self.bot.send_message(discord.Object(id='241984924616359936'), 'Restarting...')
+
         await self.bot.logout()
-        await sys.exit()
+        await sys.exit(98)
 
 
 def setup(bot):

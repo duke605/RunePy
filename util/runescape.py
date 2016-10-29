@@ -4,7 +4,6 @@ from collections import OrderedDict
 from db.models import objects, Item
 from datetime import datetime
 from bs4 import BeautifulSoup
-from xml.etree import ElementTree
 import aiohttp as http
 import math
 import asyncio
@@ -74,37 +73,30 @@ async def get_member_info(username: str):
     }
 
 
-async def get_users_alog(username: str):
+async def get_users_alog(username: str, limit=10):
     """
     Gets the a user's adventurer log
 
+    :param limit: The limit for the activties to get
     :param username: The name of the user
     """
 
-    url = 'http://services.runescape.com/m=adventurers-log/a=13/rssfeed?searchName=%s'
-    async with http.get(url % username) as r:
+    json = await use_jca('https://apps.runescape.com/runemetrics/profile/profile?user=%s&activities=%s'
+                         % (quote(username), limit))
 
-        # Checking if user found
-        if r.status != 200:
-            return None
+    # Checking if was ok
+    if not json or json.get('error'):
+        return None
 
-        text = await r.text()
+    ret = []
+    for a in json['activities']:
+        ret.append({
+            'title': re.sub('[0-9]+', lambda m: '{:,}'.format(int(m.group())), a['text']),
+            'desc': re.sub('[0-9]+', lambda m: '{:,}'.format(int(m.group())), a['details']),
+            'date': datetime.strptime(a['date'], '%d-%b-%Y %H:%M')
+        })
 
-    xml = ElementTree.fromstring(text)[0]
-    items = []
-
-    # Looping through all items
-    for item in xml.iter('item'):
-
-        i = {
-            'title': re.sub(r'[0-9]+', lambda m: '{:,}'.format(int(m.group())), item[0].text),
-            'description': re.sub(r'[0-9]+', lambda m: '{:,}'.format(int(m.group())), item[1].text.strip()),
-            'date': datetime.strptime(item[3].text, '%a, %d %b %Y %H:%M:%S %Z')
-        }
-
-        items.append(i)
-
-    return items
+    return ret
 
 
 def add_metric_suffix(num: int):
