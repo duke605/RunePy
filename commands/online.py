@@ -7,7 +7,7 @@ class Online:
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(pass_context=True)
+    @commands.command(pass_context=True, description='Shows the number of people playing Runescape.')
     async def online(self, ctx):
         await self.bot.send_typing(ctx.message.channel)
         players = await get_players_online()

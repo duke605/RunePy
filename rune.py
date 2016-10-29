@@ -27,6 +27,18 @@ async def on_ready():
     print(bot.user.id)
     print('------')
     bot.whttp = ClientSession()
+    bot.usage = {'total': 0}
+
+
+@bot.event
+async def on_command(command, ctx):
+
+    # Not tracking if in testing
+    if ctx.message.channel.id == 240109807627927552:
+        return
+
+    bot.usage['total'] += 1
+    bot.usage[command.name] = bot.usage.get(command.name, 0) + 1
 
 
 @bot.event

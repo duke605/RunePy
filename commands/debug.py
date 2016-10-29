@@ -34,15 +34,30 @@ class Debug:
             m += ' {:,} second{}'.format(seconds, 's' if seconds != 1 else '')
 
         # Connection numbers
-        m += '\nConnected to {:,} guilds with {:,} channels and {:,} users.'.format(len(self.bot.servers),
-                                                                                    len([*self.bot.get_all_channels()]),
-                                                                                    len([*self.bot.get_all_members()]))
+        m += '\nGuilds: {:,}'.format(len(self.bot.servers))
+        m += '\nChannels: {:,}'.format(len([*self.bot.get_all_channels()]))
+        m += '\nUsers: {:,}'.format(len([*self.bot.get_all_members()]))
 
         # Memory usage
         info = psutil.Process().memory_full_info()
         mem = info.uss / float(2**20)
         per = info.uss / psutil.virtual_memory().available
         m += '\nMemory Usage: {:,} MiB ({}%)'.format(round(mem, 1), round(per, 1))
+
+        # Command usages
+        m += '\nCommands This Session: {:,} (avg. {:,}/min)'.format(self.bot.usage['total']
+                                                                    , round(self.bot.usage['total']/(_uptime/3600), 2))
+
+        # Finding most used command
+        fav = None
+        for key in self.bot.usage:
+            usage = self.bot.usage[key]
+
+            if key.lower() != 'total' and (fav is None or usage > fav[1]):
+                fav = (key, usage)
+
+        if fav:
+            m += '\nMost used: {} ({:,})'.format(*fav)
 
         await self.bot.say('```py\n%s```' % m)
 
