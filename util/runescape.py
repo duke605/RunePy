@@ -236,7 +236,7 @@ async def fuzzy_match_name(name: str):
     # Returning if name was matched to something
     if ret:
         return {
-            'name': ret[0].name,
+            'name': ret[0].name.replace('_', ' '),
             'id': ret[0].id
         }
 
@@ -248,7 +248,7 @@ async def fuzzy_match_name(name: str):
         # WE HAVE A MATCH!! :D
         if results and int(results.group(1)):
             return {
-                'name': re.search('^ITEM:\s\d+?\s(.+?)\s', text, re.M).group(1),
+                'name': re.search('^ITEM:\s\d+?\s(.+?)\s', text, re.M).group(1).replace('_', ' '),
                 'id': re.search('^IID:\s(\d+?)$', text, re.M).group(1)
             }
 
@@ -263,7 +263,7 @@ async def fuzzy_match_name(name: str):
         return None
 
     return {
-        'name': ret[0].name,
+        'name': ret[0].name.replace('_', ' '),
         'id': ret[0].id
     }
 

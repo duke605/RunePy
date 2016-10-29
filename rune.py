@@ -33,9 +33,9 @@ async def on_ready():
     print('------')
 
     # Checking if recovering from error
-    if sys.argv[1] == '99':
+    if sys.argv[1] == '98':
         await bot.send_message(discord.Object(id='241984924616359936'), 'Restarted.')
-    elif sys.argv[1] != '98' and sys.argv[1] != '-1':
+    elif sys.argv[1] != '-1':
         await bot.send_message(discord.Object(id='241984924616359936'), 'Recovered from a crash.')
 
 

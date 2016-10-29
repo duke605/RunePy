@@ -57,12 +57,15 @@ class Price:
 
         # Building message
         message = '**{}**: `{:,}` GP\n' \
-                  '**Change in last 24 hours**: `{:,}` GP `{}%`\n' \
-                  '**Change in last 30 days**: `{:,}` GP `{}%`\n' \
-                  '**Change in last 90 days**: `{:,}` GP `{}%`\n' \
-                  '**Change in last 180 days**: `{:,}` GP `{}%`' \
-            .format(item.name, item.price, day_change, day_change_per, one_month_change, one_month_change_per,
-                    three_month_change, three_month_change_per, six_month_change, six_month_change_per)
+                  '**Change in last 24 hours**: `{:,}` GP `{}%` {}\n' \
+                  '**Change in last 30 days**: `{:,}` GP `{}%` {}\n' \
+                  '**Change in last 90 days**: `{:,}` GP `{}%` {}\n' \
+                  '**Change in last 180 days**: `{:,}` GP `{}%` {}' \
+            .format(item.name, item.price,
+                    day_change, day_change_per, Price.get_change_arrow(day_change),
+                    one_month_change, one_month_change_per, Price.get_change_arrow(one_month_change),
+                    three_month_change, three_month_change_per, Price.get_change_arrow(three_month_change),
+                    six_month_change, six_month_change_per, Price.get_change_arrow(six_month_change))
 
         # Totaling
         if args.units:
