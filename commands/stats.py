@@ -49,13 +49,30 @@ class Stats:
         table.set_headings('Skill', 'Level', 'Experience', 'Rank')
 
         # Adding rows
-        for key in stats.keys():
+        total = 0
+        for i, key in enumerate(stats.keys()):
             stat = stats[key]
+
+            # Skipping if overall
+            if i == 0:
+                continue
+
+            level = stat['level'] if not args.virtual else get_level_at_exp(stat['exp'], key == 'invention')
+            total += level
             table.add_row(
                 key.capitalize(),
-                Column(stat['level'] if not args.virtual else get_level_at_exp(stat['exp']), 2),
+                Column(level, 2),
                 Column('{:,}'.format(stat['exp']), 2),
                 Column('{:,}'.format(stat['rank']), 2))
+
+        # Adding the overall level
+        table.add_row(
+            'Overall',
+            Column(total, 3),
+            Column('{:,}'.format(stats['overall']['exp']), 2),
+            Column('{:,}'.format(stats['overall']['rank']), 2),
+            index=0
+        )
 
         # Plain text
         text = str(table)

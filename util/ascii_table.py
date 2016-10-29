@@ -13,7 +13,7 @@ class Table:
         self.headings = headings
         self._update_longest(headings)
 
-    def add_row(self, *cols):
+    def add_row(self, *cols, **kwargs):
         """
         Adds a row to the table
 
@@ -33,7 +33,10 @@ class Table:
             else:
                 row.add_column(Column(col, 0))
 
-        self.rows.append(row)
+        if not 'index' in kwargs:
+            self.rows.append(row)
+        else:
+            self.rows.insert(kwargs['index'], row)
 
     def _update_longest(self, array):
         """
