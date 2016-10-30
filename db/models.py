@@ -1,20 +1,31 @@
 import peewee_async
-from peewee import Model, BigIntegerField, IntegerField, CharField, DateTimeField
+from peewee import Model, FloatField, IntegerField, CharField, DateTimeField
 from secret import DB_PASSWORD
 
-db = peewee_async.MySQLDatabase('skillbot', user='root', password=DB_PASSWORD)
+db = peewee_async.MySQLDatabase('runepy', user='root', password=DB_PASSWORD)
 objects = peewee_async.Manager(db)
 
 db.allow_sync = False
 
 
 class Item(Model):
-    id = BigIntegerField(primary_key=True, db_column='Id')
-    name = CharField(45, db_column='Name')
-    price = IntegerField(db_column='Price')
-    updated_at = DateTimeField(db_column='UpdatedAt')
-    updated_at_rd = IntegerField(db_column='UpdatedAtRd')
+    id = IntegerField(primary_key=True)
+    name = CharField(45)
+    price = IntegerField()
+    updated_at = DateTimeField()
 
     class Meta:
         database = db
         db_table = 'items'
+
+
+class Method(Model):
+    id = IntegerField(primary_key=True)
+    skill = CharField(32)
+    level = IntegerField()
+    name = CharField(64)
+    exp = FloatField()
+
+    class Meta:
+        database = db
+        db_table = 'methods'
