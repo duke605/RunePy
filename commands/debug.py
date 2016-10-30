@@ -7,11 +7,10 @@ class Debug:
 
     def __init__(self, bot):
         self.bot = bot
-        self.start_time = datetime.now()
 
     @commands.command(description='Shows information about the bot.')
     async def debug(self):
-        _uptime = (datetime.now() - self.start_time).total_seconds()
+        _uptime = (datetime.now() - self.bot.start_time).total_seconds()
 
         days = int(_uptime / 86400)
         hours = int(_uptime % 86400 / 3600)
@@ -42,11 +41,11 @@ class Debug:
         info = psutil.Process().memory_full_info()
         mem = info.uss / float(2**20)
         per = info.uss / psutil.virtual_memory().available
-        m += '\nMemory Usage: {:,} MiB ({}%)'.format(round(mem, 1), round(per, 1))
+        m += '\nMemory_Usage: {:,} MiB ({}%)'.format(round(mem, 1), round(per, 1))
 
         # Command usages
-        m += '\nCommands This Session: {:,} (avg. {:,}/min)'.format(self.bot.usage['total']
-                                                                    , round(self.bot.usage['total']/(_uptime/3600), 2))
+        m += '\nCommands_This_Session: {:,} (avg. {:,}/min)'.format(self.bot.usage['total']
+                                                                    , round(self.bot.usage['total']/(_uptime / 60), 2))
 
         # Finding most used command
         fav = None
@@ -57,9 +56,9 @@ class Debug:
                 fav = (key, usage)
 
         if fav:
-            m += '\nMost used: {} ({:,})'.format(*fav)
+            m += '\nMost_Used_Command: {} ({:,})'.format(*fav)
 
-        await self.bot.say('```py\n%s```' % m)
+        await self.bot.say('```yml\n%s```' % m)
 
 
 def setup(bot):

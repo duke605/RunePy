@@ -2,6 +2,7 @@ from secret import BOT_TOKEN
 from discord.ext import commands
 from aiohttp import ClientSession
 from util.checks import is_owner
+from datetime import datetime
 import inspect
 import os
 import hashlib
@@ -9,6 +10,7 @@ import sys
 import discord
 
 bot = commands.Bot(command_prefix='`')
+bot.start_time = datetime.now()
 bot.triggers = {'110373943822540800': '&'}
 bot.remove_command('help')
 bot.whttp = ClientSession()
