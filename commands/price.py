@@ -107,7 +107,7 @@ class Price:
 
         # Checking if item is in DB
         if not await objects.execute(Item.select().where(Item.id == item.id).limit(1)):
-            r = await objects.create(Item, **item)
+            r = await objects.create(Item, id=item.id, name=item.name, updated_at=item.updated_at, price=item.price)
 
     @staticmethod
     async def plot_history(history, months, name):

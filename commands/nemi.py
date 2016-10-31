@@ -12,7 +12,8 @@ class Nemi:
         self.token = None
         self.expire = None
 
-    @commands.command(aliases=['nemiforest'], pass_context=True)
+    @commands.command(aliases=['nemiforest'], pass_context=True,
+                      description='Displays the most recent at least 9/9 Nemi Forest.')
     async def nemi(self, ctx):
         await self.bot.send_typing(ctx.message.channel)
         m = await self.get_map()
