@@ -226,10 +226,10 @@ async def fuzzy_match_name(name: str):
 
     # Checking DB first
     ret = await objects.execute(
-        Item.raw('SELECT Name, Id '
+        Item.raw('SELECT name, id '
                  'FROM items '
-                 'WHERE Name = %s '
-                 'OR SOUNDEX(Name) LIKE SOUNDEX(%s) '
+                 'WHERE name = %s '
+                 'OR SOUNDEX(name) LIKE SOUNDEX(%s) '
                  'ORDER BY sys.jaro_winkler(Name, %s) DESC '
                  'LIMIT 1', name, name, name))
 
@@ -254,9 +254,9 @@ async def fuzzy_match_name(name: str):
 
     # Slowly fuzzy matching DB
     ret = await objects.execute(
-        Item.raw('SELECT Name, Id '
+        Item.raw('SELECT name, id '
                  'FROM items '
-                 'ORDER BY sys.jaro_winkler(Name, %s) DESC '
+                 'ORDER BY sys.jaro_winkler(name, %s) DESC '
                  'LIMIT 1', name))
 
     if not ret:
@@ -291,7 +291,6 @@ async def get_item_for_name(name: str):
     item.name = resolved['name']
     item.id = resolved['id']
     item.updated_at = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
-    item.updated_at_rd = 0
 
     return item, history
 

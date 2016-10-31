@@ -19,7 +19,7 @@ class Help:
             command = self.bot.commands[key]
 
             temp = '%s:\n' % key
-            temp += '\taliases: %s\n' % (', '.join(command.aliases) if command.aliases else 'None')
+            temp += "\taliases: '%s'\n" % ("', '".join(command.aliases) if command.aliases else 'None')
             temp += '\tdescription: %s\n\n' % (command.description if command.description else 'N/A')
 
             # Limit reached starting new message
@@ -31,7 +31,7 @@ class Help:
 
         messages.append(m)
         for message in messages:
-            await self.bot.send_message(ctx.message.author, '```%s```' % message)
+            await self.bot.send_message(ctx.message.author, '```yml\n%s```' % message)
 
 
 def setup(bot):

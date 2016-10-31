@@ -3,6 +3,7 @@ from discord.ext import commands
 from aiohttp import ClientSession
 from util.checks import is_owner
 from datetime import datetime
+from math import ceil
 import inspect
 import os
 import hashlib
@@ -84,6 +85,45 @@ async def on_command_error(ex, ctx):
             '%s```' % (ctx.message.content, type(ex.original).__name__, str(ex.original))
 
         await bot.send_message(discord.Object(id='241984924616359936'), m)
+
+
+@bot.event
+async def on_server_join(server):
+    allowed = ceil(1.25 * sum([not m.bot for m in server.members]))
+    owner = server.owner
+
+    # Checking if the server has more bots than it is allowed
+    if sum([m.bot for m in server.members]) <= allowed:
+        return
+
+    # Finding the first writable channel
+    channels = sorted(server._channels, key=lambda c: server._channels[c].position)
+    pub_channels = [server._channels[c] for c in channels
+                    if server._channels[c].permissions_for(server.me).send_messages
+                    and server._channels[c].permissions_for(server.me).read_messages
+                    and server._channels[c].type == discord.ChannelType.text]
+
+    # Checking if any writable channels found
+    pub_channel = pub_channels[0] if pub_channels else owner
+
+    # Sending messages
+    await bot.send_message(discord.Object(id=241984924616359936),
+                           'Left server **{}** for exceeding bot limit.\n'
+                           '**Bots**: {:,}\n'
+                           '**Users**: {:,}\n'
+                           '**Allowed**: {:,}'
+                           .format(server.name,
+                                   sum([m.bot for m in server.members]),
+                                   sum([not m.bot for m in server.members]),
+                                   allowed))
+    await bot.send_message(pub_channel,
+                           '%s, your server, **%s**, exceeds the bots to users ratio. This bot is run on a '
+                           'Raspberry PI with only 1 GB of RAM and can not afford to be sitting in a bot '
+                           'collection server and not be used. If your server is not a bot collection '
+                           'server and you do plan on actually using this bot please DM Duke605#4705 to '
+                           'have your server added to a whitelist.' % (server.name, owner.mention))
+
+    await bot.leave_server(server)
 
 
 @bot.command()
@@ -210,6 +250,8 @@ async def _eval(ctx, *, code):
 
     env.update(globals())
 
+    await bot.send_typing(ctx.message.channel)
+
     try:
         result = eval(code, env)
         if inspect.isawaitable(result):
@@ -218,7 +260,7 @@ async def _eval(ctx, *, code):
         await bot.say(python.format(code, type(e).__name__ + ': ' + str(e)))
         return
 
-    await bot.say(python.format(code, result))
+    await bot.say(python.format(code, result or 'N/A'))
 
 
 def load_extension(ext: str):
@@ -226,5 +268,6 @@ def load_extension(ext: str):
 
     with open('./%s.py' % ext.replace('.', '/'), 'rb') as f:
         cog_hashes[ext] = hashlib.sha1(f.read()).hexdigest()
+
 
 bot.run(BOT_TOKEN)
