@@ -4,6 +4,7 @@ from aiohttp import ClientSession
 from util.checks import is_owner
 from datetime import datetime
 from math import ceil
+from db.models import objects, Configuration
 import inspect
 import os
 import hashlib
@@ -12,7 +13,6 @@ import discord
 
 bot = commands.Bot(command_prefix='`')
 bot.start_time = datetime.now()
-bot.triggers = {'110373943822540800': '&'}
 bot.remove_command('help')
 bot.whttp = ClientSession()
 bot.usage = {'total': 0}
@@ -41,15 +41,29 @@ async def on_ready():
     elif sys.argv[1] != '-1':
         await bot.send_message(discord.Object(id='241984924616359936'), 'Recovered from a crash.')
 
+    # Loading configurations into memory
+    bot.configurations = {}
+    configs = await objects.execute(Configuration.select())
+    for c in configs:
+        bot.configurations[c.server_id] = {}
+        bot.configurations[c.server_id]['prefix'] = c.prefix
+
 
 @bot.event
 async def on_message(m):
-    if not m.channel.is_private:
-        bot.command_prefix = bot.triggers.get(m.channel.server.id, '`')
-    else:
-        bot.command_prefix = '`'
 
-    await bot.process_commands(m)
+    # Waiting till ready
+    if not bot.__dict__.get('configurations'):
+        return
+
+    if m.channel.is_private:
+        bot.command_prefix = '`'
+    else:
+        bot.command_prefix = bot.configurations[m.channel.server.id]['prefix'] or '`'
+
+    # Checking if messages can be sent to the channel
+    if m.channel.is_private or m.channel.permissions_for(m.channel.server.me).send_messages:
+        await bot.process_commands(m)
 
 
 @bot.event
@@ -89,12 +103,15 @@ async def on_command_error(ex, ctx):
 
 @bot.event
 async def on_server_remove(server):
-        h = {'authorization': len(bot.severs), 'user-agent': 'Python:RunePy:v1.1.25 (by /u/duke605)'}
+        h = {'authorization': len(bot.severs), 'user-agent': 'Python:RunePy:v1.1.26 (by /u/duke605)'}
         url = 'https://bots.discord.pw/api/bots/%s/stats' % bot.user.id
 
         # Updating bot website stats
         async with bot.whttp.post(url, headers=h) as r:
             pass
+
+        # Removing configurations
+        await objects.execute(Configuration.select().where(Configuration.server_id == server.id).delete())
 
 
 @bot.event
@@ -104,13 +121,15 @@ async def on_server_join(server):
 
     # Checking if the server has more bots than it is allowed
     if sum([m.bot for m in server.members]) <= allowed:
-        h = {'authorization': len(bot.severs), 'user-agent': 'Python:RunePy:v1.1.25 (by /u/duke605)'}
+        h = {'authorization': len(bot.severs), 'user-agent': 'Python:RunePy:v1.1.26 (by /u/duke605)'}
         url = 'https://bots.discord.pw/api/bots/%s/stats' % bot.user.id
 
         # Updating bot website stats
         async with bot.whttp.post(url, headers=h) as r:
             pass
 
+        # Adding configurations
+        await objects.create(Configuration, id=server.id)
         return
 
     # Finding the first writable channel
@@ -149,6 +168,7 @@ async def invite():
 
 
 @bot.group(aliases=['ext', 'cog'], hidden=True)
+@is_owner()
 async def extension():
     pass
 

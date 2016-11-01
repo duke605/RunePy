@@ -1,16 +1,19 @@
 from argparse import ArgumentTypeError
 
 
-def between(low, high):
+def between(low, high, number=True):
     """
-    Tests that the given input is between the low number (inclusive) and high number (exclusive)
+    If input is supposed to be a string then it will test if the length is between the min and max
+    If the input is supposed to be a number it tests if the number is between min and max
     """
 
     def test(s):
-        s = int(s)
+        s = int(s) if number else s
+        length = s if number else len(s)
 
-        if low > s or s > high:
-            raise ArgumentTypeError('must be between {:,} and {:,}'.format(low, high))
+        # Testing length
+        if length < low or length > high:
+            raise ArgumentTypeError('invalid value: {} (must be between {:,} and {:,})'.format(s, low, high))
 
         return s
     return test
@@ -40,23 +43,23 @@ def enum(*args, **kwargs):
         together = '%s %s' % (plain, kv)
 
         # Input not found in valid choices
-        raise ArgumentTypeError('invalid choice: \'%s\' (choose from %s).' % (s, together.strip()))
+        raise ArgumentTypeError('invalid choice: \'%s\' (choose from %s.)' % (s, together.strip()))
 
     return test
 
 
-def minimum(_min):
+def minimum(_min, number=True):
     """
-    Tests if the input is above or equal to a certain number
-
-    :param _min: The minimum value the input can be
+    Tests if the input is above or equal to a certain number if input is supposed to be a number. Otherwise
+    length is tested
     """
 
     def test(s):
-        s = int(s)
+        s = int(s) if number else s
+        length = s if number else len(s)
 
-        if s < _min:
-            return 'invalid value: %s (must be greater than or equal to %s.)' % (s, _min)
+        if length < _min:
+            raise ArgumentTypeError('invalid value: {} (must be greater than or equal to {:,}.)'.format(s, _min))
 
         return s
 

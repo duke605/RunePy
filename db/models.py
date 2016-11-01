@@ -29,3 +29,12 @@ class Method(Model):
     class Meta:
         database = db
         db_table = 'methods'
+
+
+class Configuration(Model):
+    server_id = CharField(18, primary_key=True)
+    prefix = CharField(3, null=True)
+
+    class Meta:
+        database = db
+        db_table = 'configurations'
