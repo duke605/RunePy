@@ -61,7 +61,8 @@ class Train:
         stat = stats[args.skill]
 
         # Doing db stuff
-        exp_needed = get_exp_between_levels(stat['level'], args.level)
+        exp_needed = get_exp_between_levels(1, args.level)
+        exp_needed -= stat['exp']
         count = await objects.count(Method
                                     .select()
                                     .where(Method.skill == args.skill)

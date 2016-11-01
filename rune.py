@@ -88,12 +88,29 @@ async def on_command_error(ex, ctx):
 
 
 @bot.event
+async def on_server_remove(server):
+        h = {'authorization': len(bot.severs), 'user-agent': 'Python:RunePy:v1.1.25 (by /u/duke605)'}
+        url = 'https://bots.discord.pw/api/bots/%s/stats' % bot.user.id
+
+        # Updating bot website stats
+        async with bot.whttp.post(url, headers=h) as r:
+            pass
+
+
+@bot.event
 async def on_server_join(server):
     allowed = ceil(1.25 * sum([not m.bot for m in server.members]))
     owner = server.owner
 
     # Checking if the server has more bots than it is allowed
     if sum([m.bot for m in server.members]) <= allowed:
+        h = {'authorization': len(bot.severs), 'user-agent': 'Python:RunePy:v1.1.25 (by /u/duke605)'}
+        url = 'https://bots.discord.pw/api/bots/%s/stats' % bot.user.id
+
+        # Updating bot website stats
+        async with bot.whttp.post(url, headers=h) as r:
+            pass
+
         return
 
     # Finding the first writable channel

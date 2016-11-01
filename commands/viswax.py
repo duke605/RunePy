@@ -9,7 +9,7 @@ class VisWax:
 
     def __init__(self, bot):
         self.bot = bot
-        self.cache = {}
+        self.cache = None
 
     @commands.command(pass_context=True, aliases=['wax'],
                       description='Shows the combination of runes needed for the Rune Goldberg Machine.')
