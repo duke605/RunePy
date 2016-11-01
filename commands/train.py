@@ -31,7 +31,7 @@ class Train:
                             help='The number of training methods per page.')
         parser.add_argument('-p', '--page', type=minimum(1), default=1, help='The page of results to return.')
         parser.add_argument('-i', '--image', action='store_true',
-                            help='Displays the table as an image. (Useful for mobile).')
+                            help='Displays the results as an image. (Useful for mobile).')
         parser.add_argument('-s', '--order', nargs='+', type=enum('number-', 'number', 'level', 'level-', 'exp', 'exp-',
                                                                  'name', 'name-'),
                             help='Sorts the results in the order specified. Add a \'-\' to the end of the order string '
@@ -110,7 +110,7 @@ class Train:
             if link:
                 await self.bot.say(link)
             else:
-                await self.bot.say('Table could not be uploaded to imgur.')
+                await self.bot.say('Table could not be uploaded to Imgur.')
 
     @staticmethod
     def build_order_by_query(order):

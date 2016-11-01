@@ -3,6 +3,7 @@ from util.arguments import Arguments
 from shlex import split
 from util.runescape import get_users_alog
 from util.ascii_table import Table
+from util.image_util import text_to_image
 
 
 class AdventureLog:
@@ -15,6 +16,8 @@ class AdventureLog:
     async def alog(self, ctx, *, msg):
         parser = Arguments(allow_abbrev=False, prog='alog')
         parser.add_argument('username', nargs='+', help='Your Runescape username.')
+        parser.add_argument('-i', '--image', action='store_true',
+                            help='Displays the results as an image. (Useful for mobile).')
 
         await self.bot.send_typing(ctx.message.channel)
 
@@ -43,7 +46,16 @@ class AdventureLog:
         for item in items:
             table.add_row(item['title'], item['date'].strftime('%a, %d %b %Y'))
 
-        await self.bot.say('```%s```' % str(table))
+        if not args.image:
+            await self.bot.say('```%s```' % str(table))
+        else:
+            link = await text_to_image(str(table))
+
+            # Checking if link was good
+            if link:
+                await self.bot.say(link)
+            else:
+                await self.bot.say('Table could not be uploaded to Imgur.')
 
 
 def setup(bot):
