@@ -6,6 +6,7 @@ from shlex import split
 from db.models import Method, objects
 from util.ascii_table import Table, Column
 from math import ceil
+from util.image_util import text_to_image
 
 
 class Train:
@@ -29,7 +30,7 @@ class Train:
         parser.add_argument('-l', '--limit', type=between(1, 15), default=10,
                             help='The number of training methods per page.')
         parser.add_argument('-p', '--page', type=minimum(1), default=1, help='The page of results to return.')
-        parser.add_argument('-i', '--image', type=minimum(1), default=1,
+        parser.add_argument('-i', '--image', action='store_true',
                             help='Displays the table as an image. (Useful for mobile).')
         parser.add_argument('-s', '--order', nargs='+', type=enum('number-', 'number', 'level', 'level-', 'exp', 'exp-',
                                                                  'name', 'name-'),
@@ -99,7 +100,17 @@ class Train:
                 Column('{:,}'.format(method.exp), 2)
             )
 
-        await self.bot.say('```%s```' % str(table))
+        # Printing raw
+        if not args.image:
+            await self.bot.say('```%s```' % str(table))
+        else:
+            link = await text_to_image(str(table))
+
+            # Checking if link worked
+            if link:
+                await self.bot.say(link)
+            else:
+                await self.bot.say('Table could not be uploaded to imgur.')
 
     @staticmethod
     def build_order_by_query(order):
