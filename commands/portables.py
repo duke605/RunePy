@@ -3,6 +3,7 @@ from datetime import datetime
 from util.arguments import Arguments
 from discord.ext import commands
 from shlex import split
+from util.choices import enum
 import re
 
 
@@ -16,7 +17,16 @@ class Portables:
         ports = ('fletcher', 'crafter', 'brazier', 'sawmill', 'forge', 'range', 'well')
 
         parser = Arguments(allow_abbrev=False, prog='portables')
-        parser.add_argument('portable', nargs='?', choices=ports, type=str.lower,
+        parser.add_argument('portable', nargs='?',
+                            type=enum(
+                                fletcher=('fletchers', 'fletch'),
+                                crafter=('crafters', 'craft'),
+                                brazier=('braziers', 'braz'),
+                                sawmill=('saw', 'mill', 'sawmills'),
+                                forge=('forges'),
+                                range=('ranges', 'cook'),
+                                well=('wells')
+                            ),
                             help='Selects a type of portable to search for.')
 
         await self.bot.send_typing(ctx.message.channel)
