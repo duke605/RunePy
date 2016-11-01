@@ -41,8 +41,8 @@ class Clear:
 
         # Getting messages
         deleted = await self.bot.purge_from(ctx.message.channel, limit=args.num,
-                                            check=lambda m: m.author.id == self.bot.user.id or
-                                                            m.content.startswith(self.bot.command_prefix))
+                        check=lambda m: m.author.id == self.bot.user.id or
+                        m.content.startswith(self.bot.configurations[ctx.message.channel.server.id]['prefix'] or '`'))
 
         # Displaying the number of messages deleted
         m = await self.bot.say('Deleted **{:,}** messages.'.format(len(deleted)))

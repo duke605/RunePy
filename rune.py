@@ -103,7 +103,7 @@ async def on_command_error(ex, ctx):
 
 @bot.event
 async def on_server_remove(server):
-        h = {'authorization': len(bot.severs), 'user-agent': 'Python:RunePy:v1.1.26 (by /u/duke605)'}
+        h = {'authorization': len(bot.severs), 'user-agent': 'Python:RunePy:v1.1.27 (by /u/duke605)'}
         url = 'https://bots.discord.pw/api/bots/%s/stats' % bot.user.id
 
         # Updating bot website stats
@@ -121,7 +121,7 @@ async def on_server_join(server):
 
     # Checking if the server has more bots than it is allowed
     if sum([m.bot for m in server.members]) <= allowed:
-        h = {'authorization': len(bot.severs), 'user-agent': 'Python:RunePy:v1.1.26 (by /u/duke605)'}
+        h = {'authorization': len(bot.severs), 'user-agent': 'Python:RunePy:v1.1.27 (by /u/duke605)'}
         url = 'https://bots.discord.pw/api/bots/%s/stats' % bot.user.id
 
         # Updating bot website stats
