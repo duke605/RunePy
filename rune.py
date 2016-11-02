@@ -5,6 +5,9 @@ from util.checks import is_owner
 from datetime import datetime
 from math import ceil
 from db.models import objects, Configuration
+from secret import MIXPANEL_TOKEN
+import base64
+import json
 import inspect
 import os
 import hashlib
@@ -75,6 +78,33 @@ async def on_command(command, ctx):
 
     bot.usage['total'] += 1
     bot.usage[command.name] = bot.usage.get(command.name, 0) + 1
+
+
+@bot.event
+async def on_command_completion(cmd, ctx):
+
+    # Not tracking if in testing
+    if ctx.message.author.id == '136856172203474944':
+        return
+
+    data = {
+        'event': 'Command Used',
+        'properties': {
+            'token': MIXPANEL_TOKEN,
+            'distinct_id': ctx.message.author.id,
+            'command': cmd.name,
+            'channel': ctx.message.channel.id,
+            'server': ctx.message.channel.server.id if not ctx.message.channel.is_private else None,
+            'username': ctx.message.author.name,
+            'channel_name': ctx.message.channel.name,
+            'server_name': ctx.message.channel.server.name if not ctx.message.channel.is_private else None,
+            'arguments': ctx.kwargs
+        }
+    }
+    data = base64.b64encode(bytes(json.dumps(data), 'UTF-8')).decode('UTF-8')
+
+    async with bot.whttp.get('http://api.mixpanel.com/track?data=%s' % data) as r:
+        pass
 
 
 @bot.event
