@@ -188,7 +188,7 @@ async def on_server_join(server):
                            'Raspberry PI with only 1 GB of RAM and can not afford to be sitting in a bot '
                            'collection server and not be used. If your server is not a bot collection '
                            'server and you do plan on actually using this bot please DM Duke605#4705 to '
-                           'have your server added to a whitelist.' % (server.name, owner.mention))
+                           'have your server added to a whitelist.' % (owner.mention, server.name))
 
     await bot.leave_server(server)
 
