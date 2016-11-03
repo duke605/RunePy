@@ -62,7 +62,7 @@ async def on_message(m):
     if m.channel.is_private:
         bot.command_prefix = '`'
     else:
-        bot.command_prefix = bot.configurations[m.channel.server.id]['prefix'] or '`'
+        bot.command_prefix = bot.configurations.get(m.channel.server.id, {'prefix': None})['prefix'] or '`'
 
     # Checking if messages can be sent to the channel
     if m.channel.is_private or m.channel.permissions_for(m.channel.server.me).send_messages:
@@ -133,7 +133,7 @@ async def on_command_error(ex, ctx):
 
 @bot.event
 async def on_server_remove(server):
-        h = {'authorization': len(bot.servers), 'user-agent': 'Python:RunePy:v1.1.27 (by /u/duke605)'}
+        h = {'authorization': '%s' % len(bot.servers), 'user-agent': 'Python:RunePy:v1.1.27 (by /u/duke605)'}
         url = 'https://bots.discord.pw/api/bots/%s/stats' % bot.user.id
 
         # Updating bot website stats
@@ -141,7 +141,8 @@ async def on_server_remove(server):
             pass
 
         # Removing configurations
-        await objects.execute(Configuration.select().where(Configuration.server_id == server.id).delete())
+        await objects.execute(Configuration.raw('DELETE FROM configurations '
+                                                'WHERE id = %s', server.id))
 
 
 @bot.event
@@ -151,7 +152,7 @@ async def on_server_join(server):
 
     # Checking if the server has more bots than it is allowed
     if sum([m.bot for m in server.members]) <= allowed:
-        h = {'authorization': len(bot.servers), 'user-agent': 'Python:RunePy:v1.1.27 (by /u/duke605)'}
+        h = {'authorization': '%s' % len(bot.servers), 'user-agent': 'Python:RunePy:v1.1.27 (by /u/duke605)'}
         url = 'https://bots.discord.pw/api/bots/%s/stats' % bot.user.id
 
         # Adding configurations

@@ -16,7 +16,7 @@ class Arraxi:
             'Darkness'
         ]
 
-        ms = round(datetime.utcnow().timestamp() * 1000, 0)
+        ms = datetime.utcnow().timestamp() * 1000
         current_rotation = floor((((floor(floor(ms / 1000) / (24 * 60 * 60))) + 3) % (4 * len(araxxi_rotations))) / 4)
         days_until_next = 4 - ((floor((ms / 1000) / (24 * 60 * 60))) + 3) % (4 * len(araxxi_rotations)) % 4
         next_rotation = current_rotation + 1

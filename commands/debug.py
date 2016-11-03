@@ -38,9 +38,9 @@ class Debug:
         m += '\nUsers: {:,}'.format(len([*self.bot.get_all_members()]))
 
         # Memory usage
-        info = psutil.Process().memory_full_info()
-        mem = info.uss / float(2**20)
-        per = info.uss / psutil.virtual_memory().available
+        info = psutil.Process().memory_info()
+        mem = info.rss / float(2**20)
+        per = info.rss / psutil.virtual_memory().available
         m += '\nMemory_Usage: {:,} MiB ({}%)'.format(round(mem, 1), round(per, 1))
 
         # Command usages

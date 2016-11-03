@@ -27,12 +27,14 @@ class Train:
 
         parser.add_argument('level', type=between(2, 120), help='The level you wish to reach.')
         parser.add_argument('username', nargs='+', help='Your Runescape username.')
-        parser.add_argument('-l', '--limit', type=between(1, 15), default=10,
-                            help='The number of training methods per page.')
+
+        parser.add_argument('-l', '--limit', type=between(1, 30), default=10,
+                            help='The number of training methods per page. If above 15 the results will be outputted '
+                                 'as an image.')
         parser.add_argument('-p', '--page', type=minimum(1), default=1, help='The page of results to return.')
         parser.add_argument('-i', '--image', action='store_true',
                             help='Displays the results as an image. (Useful for mobile).')
-        parser.add_argument('-s', '--order', nargs='+', type=enum('number-', 'number', 'level', 'level-', 'exp', 'exp-',
+        parser.add_argument('-o', '--order', nargs='+', type=enum('number-', 'number', 'level', 'level-', 'exp', 'exp-',
                                                                  'name', 'name-'),
                             help='Sorts the results in the order specified. Add a \'-\' to the end of the order string '
                                  'to specify descending. Eg. number-', default=['number'])
@@ -101,7 +103,7 @@ class Train:
             )
 
         # Printing raw
-        if not args.image:
+        if not args.image and args.limit <= 15:
             await self.bot.say('```%s```' % str(table))
         else:
             link = await text_to_image(str(table))
