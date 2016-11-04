@@ -24,7 +24,7 @@ class Nemi:
             return
 
         # Prepping data
-        world, node_size = re.search('^[wW](\d+?)\s.+?-\s?(.+?)$', m['title']).groups()
+        world, node_size = re.search('^[wW](?:orld\s)?(\d+?)\s-\s?(.+?)$', m['title']).groups()
         delta = (datetime.utcnow() - datetime.utcfromtimestamp(m['created_utc'])).total_seconds()
         link = m['url']
 
@@ -83,7 +83,7 @@ class Nemi:
 
         headers = {
             'Authorization': 'bearer %s' % token,
-            'User-Agent': 'Python:RunePy:v1.1.27 (by /u/duke605)'
+            'User-Agent': 'Python:RunePy:v1.1.28 (by /u/duke605)'
         }
 
         # Getting posts from reddit
@@ -98,7 +98,7 @@ class Nemi:
         maps = [m['data'] for m in json['data']['children']
                 if m.get('data')
                 and (not m['data'].get('link_flair_css_class') or 'depleted' not in m['data']['link_flair_css_class'])
-                and re.search('^[wW]\d+\s', m['data']['title'])]
+                and re.search('^[wW](?:orld\s)?\d+\s', m['data']['title'])]
 
         # Checking if there are any maps
         if not maps:

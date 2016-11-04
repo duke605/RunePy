@@ -9,7 +9,6 @@ class VisWax:
 
     def __init__(self, bot):
         self.bot = bot
-        self.cache = None
 
     @commands.command(pass_context=True, aliases=['wax'],
                       description='Shows the combination of runes needed for the Rune Goldberg Machine.')
@@ -17,62 +16,51 @@ class VisWax:
         await self.bot.send_typing(ctx.message.channel)
         combo = await self.get_rune_combo()
 
-        # Creating first rune table
-        first_table = Table()
-        first_table.set_title('FIRST RUNE')
-        first_table.set_headings('Rune', 'Reported By')
+        # Checking if updated
+        if not combo:
+            await self.bot.say("Today's rune combinations have no been updated yet. Please try again later.")
+            return
 
-        # Adding potential runes
-        for rune, percent in combo['first']:
-            first_table.add_row(rune, Column('%s%%' % percent, 2))
+        m = '**Slot 1**: %s\n' % ', '.join(combo[0])
+        m += '**Slot 2**: %s\n' % ', '.join(combo[1])
 
-        # Creating first rune table
-        second_table = Table()
-        second_table.set_title('SECOND RUNE')
-        second_table.set_headings('Rune', 'Reported By')
-
-        # Adding potential runes
-        for rune, percent in combo['second']:
-            second_table.add_row(rune, Column('%s%%' % percent, 2))
-
-        await self.bot.say('```%s\n%s```' % (str(first_table), str(second_table)))
+        await self.bot.say(m)
 
     async def get_rune_combo(self):
         """
         Gets the rune combo from cache or direct from the site
         """
 
-        # Checking if combo is in cache
-        if self.cache and datetime.utcnow() < self.cache['expire']:
-            return self.cache
-
-        self.cache = {'first': [], 'second': []}
-
         # Getting html
-        async with self.bot.whttp.get('http://warbandtracker.com/goldberg/index.php') as r:
+        async with self.bot.whttp.get('http://services.runescape.com/m=forum/forums.ws?75,76,387,65763383') as r:
             text = await r.text()
 
         soup = BeautifulSoup(text, 'html.parser')
-        table = soup.find('h2', text='Detailed Rune Data').parent.find('table')
-        first = table.find_all('tr')[1]
-        second = table.find_all('tr')[3]
+        post = soup.find_all('span', attrs={'class': 'forum-post__body'})[1].text.lower()
+        day = re.search('combination\s+for\s+.+\s+(\d+).+;', post).group(1)
+        slot1, slot2 = re.search('slot 1:- (.+?) slot 2:- (.+?) slot', post).groups()
 
-        # Looping through first potential runes
-        for img in first.find_all('img'):
-            alt_text = img.attrs['alt']
-            rune, percent = re.search('^(.+?)\r\nReported by (.+?)%.$', alt_text, re.S).groups()
+        # Checking if runes updated yet
+        if int(day) != datetime.utcnow().day:
+            return None
 
-            self.cache['first'].append((rune, percent))
+        # Cleaning up the data
+        slot1 = [VisWax.clean_format(r.strip().capitalize()) for r in slot1.split('-')]
+        slot2 = [VisWax.clean_format(r.strip().capitalize()) for r in slot2.split('-')]
 
-        # Looping through second potential runes
-        for img in second.find_all('img'):
-            alt_text = img.attrs['alt']
-            rune, percent = re.search('^(.+?)\r\nReported by (.+?)%.$', alt_text, re.S).groups()
+        return slot1, slot2
 
-            self.cache['second'].append((rune, percent))
+    @staticmethod
+    def clean_format(s: str):
 
-        self.cache['expire'] = datetime.utcnow() + timedelta(minutes=30)
-        return self.cache
+        # No IM/HCIM runes to clean
+        if '(' not in s:
+            return s
+
+        rune, alts = re.search('(.+)\((.+)\)', s).groups()
+        alts = [a.strip().capitalize() for a in alts.split(',')]
+
+        return '%s (%s)' % (rune, ', '.join(alts))
 
 
 def setup(bot):
