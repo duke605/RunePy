@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 from secret import TWITTER_BEARER_TOKEN
 from discord.ext import commands
 import re
+import discord
 
 
 class VoiceOfSeren:
@@ -19,11 +20,15 @@ class VoiceOfSeren:
         district_stats = await self._get_active_districts()
         potential = [d for d in districts if d not in district_stats['active'] and d not in district_stats['previous']]
 
-        m = '**Active districts:** %s and %s.\n' % district_stats['active']
-        m += '**Previous districts:** %s and %s.\n' % district_stats['previous']
-        m += '**Potential upcoming districts:** {}, {}, {}, and {}.'.format(*potential)
+        e = discord.Embed()
+        e.colour = 0x3572a7
 
-        await self.bot.say(m)
+        e.set_thumbnail(url='https://cdn.rawgit.com/duke605/RunePy/master/assets/img/%s_%s.png' % district_stats['active'])
+        e.add_field(name='Active Districts', value='%s and %s.' % district_stats['active'], inline=False)
+        e.add_field(name='Previous Districts', value='%s and %s' % district_stats['previous'], inline=False)
+        e.add_field(name='Potential upcoming districts', value='{}, {}, {}, and {}.'.format(*potential), inline=False)
+
+        await self.bot.say(embed=e)
 
     async def _get_active_districts(self):
         """
