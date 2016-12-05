@@ -31,7 +31,7 @@ class AdventureLog:
             return
 
         args.username = ' '.join(args.username)
-        items = await get_users_alog(args.username)
+        items = await get_users_alog(args.username, 10 if not args.image else 20)
 
         # Checking if alog could be fetched
         if not items:

@@ -2,6 +2,7 @@ from discord.ext import commands
 from datetime import datetime
 from util.ascii_table import Table, Column
 from math import floor
+import discord
 
 
 class RiseOfTheSix:
@@ -48,15 +49,13 @@ class RiseOfTheSix:
         current = floor((ms / 1000) / (24 * 60 * 60)) % 20
 
         # Creating table
-        table = Table()
-        table.set_title('Current Rise of the Six Rotation ')
-        table.set_headings('{:^16}'.format('West'), '{:^16}'.format('East'))
+        e = discord.Embed()
+        e.colour = 0x3572a7
 
-        # Adding rows
-        for i in range(3):
-            table.add_row(Column(rotations[current][0][i], 1), Column(rotations[current][1][i], 1))
+        e.add_field(name='West', value='\n'.join(rotations[current][0]))
+        e.add_field(name='East', value='\n'.join(rotations[current][1]))
 
-        await self.bot.say('```%s```' % str(table))
+        await self.bot.say(embed=e)
 
 
 def setup(bot):

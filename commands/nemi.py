@@ -3,6 +3,8 @@ from secret import REDDIT_BASIC, REDDIT_PASSWORD, REDDIT_USERNAME
 from datetime import datetime, timedelta
 from math import floor
 import re
+import discord
+import html
 
 
 class Nemi:
@@ -24,7 +26,7 @@ class Nemi:
             return
 
         # Prepping data
-        world, node_size = re.search('^[wW](?:orld\s)?(\d+?)\s-\s?(.+?)$', m['title']).groups()
+        world, node_size = re.search('^w(?:orld )?(\d+?) (?:map\s)?-? ?(.+?)$', m['title'], re.I).groups()
         delta = (datetime.utcnow() - datetime.utcfromtimestamp(m['created_utc'])).total_seconds()
         link = m['url']
 
@@ -36,16 +38,22 @@ class Nemi:
 
         time = ''
         if days:
-            time += '**{:,}** day{}'.format(days, 's' if days != 1 else '')
+            time += '{:,}d'.format(days)
         if hours:
-            time += ' **{:,}** hour{}'.format(hours, 's' if hours != 1 else '')
+            time += ' {:,}h'.format(hours)
         if minutes:
-            time += ' **{:,}** minute{}'.format(minutes, 's' if minutes != 1 else '')
+            time += ' {:,}m'.format(minutes)
         if seconds:
-            time += ' **{:,}** second{}'.format(seconds, 's' if seconds != 1 else '')
+            time += ' {:,}s'.format(seconds)
 
-        await self.bot.say('Active **%s** Nemi forest on **world %s**. Posted %s ago.\n'
-                           '%s' % (node_size, world, time.strip(), link))
+        e = discord.Embed()
+        e.colour = 0x3572a7
+
+        e.add_field(name=html.unescape(node_size), value='World %s' % world)
+        e.add_field(name='Active for', value=time)
+        e.set_image(url=link)
+
+        await self.bot.say(embed=e)
 
     async def get_reddit_token(self):
         """

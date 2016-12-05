@@ -5,7 +5,8 @@ from util.checks import is_owner
 from datetime import datetime
 from math import ceil
 from db.models import objects, Configuration
-from secret import MIXPANEL_TOKEN
+from secret import MIXPANEL_TOKEN, DISCORD_BOTS_TOKEN
+from collections import Counter
 import base64
 import json
 import inspect
@@ -14,25 +15,32 @@ import hashlib
 import sys
 import discord
 
-bot = commands.Bot(command_prefix='`')
-bot.start_time = datetime.now()
+
+def _get_prefix(bot, m):
+    """Gets the prefix for a given server"""
+
+    prefixes = ['`']
+    channel = m.channel
+
+    # Return normal prefix for private channel
+    if not channel.is_private and bot.__dict__.setdefault('configurations', {}).get(channel.server.id, {}).get('prefix'):
+        prefixes.append(bot.configurations[m.channel.server.id]['prefix'])
+
+    return prefixes
+
+bot = commands.Bot(command_prefix=_get_prefix)
+
+# Adding custom attributes to bot
+bot.start_time = datetime.utcnow()
 bot.remove_command('help')
 bot.whttp = ClientSession()
-bot.usage = {'total': 0}
+bot.usage = Counter()
 
 cog_hashes = {}
 
 
 @bot.event
 async def on_ready():
-    startup_extensions = [fn.replace('.py', '') for fn in os.listdir('./commands') if fn.endswith('.py')]
-
-    for ext in startup_extensions:
-        try:
-            load_extension('commands.%s' % ext)
-        except Exception as e:
-            exc = '{}: {}'.format(type(e).__name__, e)
-            print('Failed to load extension {}\n{}'.format(ext, exc))
     print('\nLogged in as')
     print(bot.user.name)
     print(bot.user.id)
@@ -55,15 +63,6 @@ async def on_ready():
 @bot.event
 async def on_message(m):
 
-    # Waiting till ready
-    if not bot.__dict__.get('configurations'):
-        return
-
-    if m.channel.is_private:
-        bot.command_prefix = '`'
-    else:
-        bot.command_prefix = bot.configurations.get(m.channel.server.id, {'prefix': None})['prefix'] or '`'
-
     # Checking if messages can be sent to the channel
     if m.channel.is_private or m.channel.permissions_for(m.channel.server.me).send_messages:
         await bot.process_commands(m)
@@ -76,8 +75,7 @@ async def on_command(command, ctx):
     if ctx.message.author.id == '136856172203474944':
         return
 
-    bot.usage['total'] += 1
-    bot.usage[command.name] = bot.usage.get(command.name, 0) + 1
+    bot.usage[command.name] += 1
 
 
 @bot.event
@@ -101,9 +99,9 @@ async def on_command_completion(cmd, ctx):
             'arguments': ctx.kwargs
         }
     }
-    data = base64.b64encode(bytes(json.dumps(data), 'UTF-8')).decode('UTF-8')
 
-    async with bot.whttp.get('http://api.mixpanel.com/track?data=%s' % data) as r:
+    data = base64.b64encode(bytes(json.dumps(data), 'UTF-8')).decode('UTF-8')
+    async with bot.whttp.get('http://api.mixpanel.com/track?data=%s' % data):
         pass
 
 
@@ -133,16 +131,19 @@ async def on_command_error(ex, ctx):
 
 @bot.event
 async def on_server_remove(server):
-        h = {'authorization': '%s' % len(bot.servers), 'user-agent': 'Python:RunePy:v1.1.28 (by /u/duke605)'}
+        h = {'authorization': DISCORD_BOTS_TOKEN, 'user-agent': 'Python:RunePy:v1.1.28 (by /u/duke605)',
+             'Content-Type': 'application/json'}
+        data = {'server_count': len(bot.servers)}
         url = 'https://bots.discord.pw/api/bots/%s/stats' % bot.user.id
 
         # Updating bot website stats
-        async with bot.whttp.post(url, headers=h) as r:
+        async with bot.whttp.post(url, headers=h, data=json.dumps(data)) as r:
             pass
 
         # Removing configurations
         await objects.execute(Configuration.raw('DELETE FROM configurations '
-                                                'WHERE id = %s', server.id))
+                                                'WHERE server_id = %s', server.id))
+        del bot.configurations[server.id]
 
 
 @bot.event
@@ -152,14 +153,17 @@ async def on_server_join(server):
 
     # Checking if the server has more bots than it is allowed
     if sum([m.bot for m in server.members]) <= allowed:
-        h = {'authorization': '%s' % len(bot.servers), 'user-agent': 'Python:RunePy:v1.1.28 (by /u/duke605)'}
         url = 'https://bots.discord.pw/api/bots/%s/stats' % bot.user.id
+        h = {'Authorization': DISCORD_BOTS_TOKEN, 'User-Agent': 'Python:RunePy:v1.1.28 (by /u/duke605)',
+             'Content-Type': 'application/json'}
+        data = {'server_count': len(bot.servers)}
 
         # Adding configurations
-        await objects.create(Configuration, id=server.id)
+        await objects.create(Configuration, server_id=server.id)
+        bot.configurations[server.id] = {'prefix': None}
 
         # Updating bot website stats
-        async with bot.whttp.post(url, headers=h) as r:
+        async with bot.whttp.post(url, headers=h, data=json.dumps(data)) as r:
             pass
 
         return
@@ -194,7 +198,7 @@ async def on_server_join(server):
     await bot.leave_server(server)
 
 
-@bot.command()
+@bot.command(description='Shows the oAuth link to invite this bot to a server.')
 async def invite():
     await bot.say('https://discordapp.com/oauth2/authorize?client_id=%s&scope=bot&permissions=93184' % bot.user.id)
 
@@ -339,4 +343,13 @@ def load_extension(ext: str):
         cog_hashes[ext] = hashlib.sha1(f.read()).hexdigest()
 
 
+# Loading extensions
+startup_extensions = [fn.replace('.py', '') for fn in os.listdir('./commands') if fn.endswith('.py')]
+
+for ext in startup_extensions:
+    try:
+        load_extension('commands.%s' % ext)
+    except Exception as e:
+        exc = '{}: {}'.format(type(e).__name__, e)
+        print('Failed to load extension {}\n{}'.format(ext, exc))
 bot.run(BOT_TOKEN)

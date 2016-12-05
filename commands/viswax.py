@@ -1,7 +1,7 @@
 from discord.ext import commands
-from datetime import datetime, timedelta
+from datetime import datetime
 from bs4 import BeautifulSoup
-from util.ascii_table import Table, Column
+import discord
 import re
 
 
@@ -21,10 +21,13 @@ class VisWax:
             await self.bot.say("Today's rune combinations have no been updated yet. Please try again later.")
             return
 
-        m = '**Slot 1**: %s\n' % ', '.join(combo[0])
-        m += '**Slot 2**: %s\n' % ', '.join(combo[1])
+        e = discord.Embed()
+        e.colour = 0x3572a7
 
-        await self.bot.say(m)
+        e.add_field(name='First Rune', value='\n'.join(combo[0]), inline=False)
+        e.add_field(name='Second Rune', value='\n'.join(combo[1]), inline=False)
+
+        await self.bot.say(embed=e)
 
     async def get_rune_combo(self):
         """
@@ -57,7 +60,7 @@ class VisWax:
         if '(' not in s:
             return s
 
-        rune, alts = re.search('(.+)\((.+)\)', s).groups()
+        rune, alts = re.search('(.+)\s?\((.+)\)', s).groups()
         alts = [a.strip().capitalize() for a in alts.split(',')]
 
         return '%s (%s)' % (rune, ', '.join(alts))

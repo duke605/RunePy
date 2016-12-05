@@ -119,9 +119,9 @@ def add_metric_suffix(num: int):
     # Thousand
     if num >= 1000:
         x = num / 1000
-        return '{:,}m'.format(int(x) if 1 % x == 0 else round(x, 1))
+        return '{:,}k'.format(int(x) if 1 % x == 0 else round(x, 1))
 
-    return '{:,}m'.format(int(num))
+    return '{:,}'.format(int(num))
 
 async def get_item_alch_prices(item_name: str, fuzzy_name=True):
     """

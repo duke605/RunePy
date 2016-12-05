@@ -15,7 +15,7 @@ def _is_owner():
 
 def is_server_owner():
     """
-    Checkes if the caller is the server owner
+    Checks if the caller is the server owner
     """
 
     return commands.check(_is_server_owner())

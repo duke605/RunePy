@@ -1,6 +1,7 @@
 from math import floor
 from datetime import datetime
 from discord.ext import commands
+import discord
 
 
 class Circus:
@@ -20,13 +21,17 @@ class Circus:
 
         # Start from beginning
         next_location = next_location if next_location < len(locations) else 0
+        current_location = locations[current_location]
+        next_location = locations[next_location]
 
         # Building message
-        m = 'The circus is currently located at **%s**.\n' % locations[current_location]
-        m += 'The next location will be **%s** in **%s** day%s.\n' % (locations[next_location], days_until_next,
-                                                                      's' if days_until_next == 1 else '')
+        e = discord.Embed()
+        e.colour = 0x3572a7
 
-        await self.bot.say(m)
+        e.add_field(name='Current Location', value=current_location, inline=False)
+        e.add_field(name='Next Location', value='%s in **%s** day%s.' %
+                                                (next_location, days_until_next, 's' if days_until_next == 1 else ''), inline=False)
+        await self.bot.say(embed=e)
 
 
 def setup(bot):

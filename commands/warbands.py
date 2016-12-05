@@ -26,7 +26,7 @@ class Warbands:
         seconds = int(floor(seconds))
 
         # Building message
-        m = 'The next wilderness warband will being in'
+        m = 'The next wilderness warband will begin in'
 
         if hours:
             m += ' **%s** hour%s' % (hours, 's' if hours != 1 else '')

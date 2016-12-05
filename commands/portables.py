@@ -4,13 +4,81 @@ from util.arguments import Arguments
 from discord.ext import commands
 from shlex import split
 from util.choices import enum
+from collections import namedtuple
 import re
+import urllib
+import discord
 
 
 class Portables:
 
     def __init__(self, bot):
         self.bot = bot
+
+    @staticmethod
+    def _format_time_detla(delta):
+        """
+        Formats a time delta to look like twitter stye "ago"
+        """
+
+        if delta.seconds >= 86400:
+            delta = '{:,}d'.format(round(delta.seconds / 86400))
+        elif delta.seconds >= 3600:
+            delta = '{:,}h'.format(round(delta.seconds / 3600))
+        elif delta.seconds >= 60:
+            delta = '{:,}m'.format(round(delta.seconds / 60))
+        else:
+            delta = '{:,}s'.format(delta.seconds)
+
+        return delta
+
+    @staticmethod
+    def _format_data(json):
+        date_format = '%d %b, %H:%M'
+        struct = namedtuple('Portable', ['author', 'last_updated', 'locations', 'time'])
+
+        # Populating portables
+        time = datetime.strptime(json['values'][2][1], date_format).replace(year=datetime.utcnow().year)
+        author = json['values'][2][3]
+        last_updated = Portables._format_time_detla(datetime.utcnow() - time)
+        locations = {'fletchers': {}, 'crafters': {}, 'braziers': {}, 'sawmills': {}, 'forges': {}, 'ranges': {}, 'wells': {}}
+
+        # Finding all worlds for portables
+        for i in range(7):
+            worlds = locations[json['values'][0][i].strip().lower()]
+            locs = json['values'][1][i]
+
+            # Checking if no worlds
+            if 'host needed' in locs.lower() or 'n/a' in locs.lower():
+                continue
+
+            # Separating locations
+            for location in re.findall('\d+.+?(?:CA|MG|PRIFF|PRIF|P|BU|SP|CW|BA)', locs.upper()):
+                name = location.split(' ')[-1]
+                name = re.sub('(?:PRIFF|PRIF)', 'P', name, re.I)
+                worlds[name] = re.findall('\d+', location)
+
+        return struct(author=author, locations=locations, last_updated=last_updated, time=time)
+
+    @staticmethod
+    async def _get_portables(http):
+        """
+        Gets data from the google spreadsheet
+        """
+
+        host = 'https://sheets.googleapis.com/v4/spreadsheets'
+        sheet_id = '16Yp-eLHQtgY05q6WBYA2MDyvQPmZ4Yr3RHYiBCBj2Hc'
+        sheet_name = 'Home'
+        range = 'A16:G18'
+        url = '%s/%s/values/%s!%s?key=%s' % (host, sheet_id, sheet_name, range, GOOGLE_API_KEY)
+
+        # Getting cells
+        async with http.get(url) as r:
+            # Checking request
+            if r.status != 200:
+                return None
+
+            return Portables._format_data(await r.json())
 
     @commands.command(pass_context=True, aliases=['ports', 'port', 'portable'], description='Shows portable locations.')
     async def portables(self, ctx, *, msg: str = ''):
@@ -40,68 +108,36 @@ class Portables:
             await self.bot.say('```%s```' % str(e))
             return
 
-        await self.execute(args, ports)
-
-    async def execute(self, args, ports):
-        host = 'https://sheets.googleapis.com/v4/spreadsheets'
-        sheet_id = '16Yp-eLHQtgY05q6WBYA2MDyvQPmZ4Yr3RHYiBCBj2Hc'
-        sheet_name = 'Home'
-        range = 'A16:G18'
-        url = '%s/%s/values/%s!%s?key=%s' % (host, sheet_id, sheet_name, range, GOOGLE_API_KEY)
-
-        # Getting cells
-        async with self.bot.whttp.get(url) as r:
-
-            # Checking request
-            if r.status != 200:
-                await self.bot.say('Google sheet could not be reached.')
-                return
-
-            json = await r.json()
-
-        t = re.search('(\d+?)/(\d+?)/(\d+?), (\d+):(\d+)', json['values'][2][1]).groups()
-        last_update = datetime.utcnow() - datetime(int(t[2]) + 2000, int(t[1]), int(t[0]), int(t[3]), int(t[4]))
-        author = json['values'][2][3]
-
-        # Formatting update
-        if last_update.seconds >= 86400:
-            last_update = '{:,}d'.format(round(last_update.seconds / 86400))
-        elif last_update.seconds >= 3600:
-            last_update = '{:,}h'.format(round(last_update.seconds / 3600))
-        elif last_update.seconds >= 60:
-            last_update = '{:,}m'.format(round(last_update.seconds / 60))
-        else:
-            last_update = '{:,}s'.format(last_update.seconds)
-
-        # Replacing abbrev
-        for i, worlds in enumerate(json['values'][1]):
-            worlds = worlds.lower()
-
-            worlds = re.sub('\sca', ' Combat Academy', worlds)
-            worlds = re.sub('\sprif', ' Prifddinas', worlds)
-            worlds = re.sub('\sp(?!rif)', ' Prifddinas', worlds)
-            worlds = re.sub('\ssp', ' Shanty Pass', worlds)
-            worlds = re.sub('\sba', ' Barbarian Assault', worlds)
-            worlds = re.sub('\sbu', ' Burthrope Assault', worlds)
-            worlds = re.sub('\scw', ' Castle Wars', worlds)
-
-            json['values'][1][i] = worlds
-
-        # Outputting only the portable the user wants
-        if args.portable:
-            worlds = json['values'][1][ports.index(args.portable)]
-
-            await self.bot.say('**%ss**: %s\n**Last Updated**: %s ago by %s' % (args.portable.capitalize(), worlds,
-                                                                                 last_update, author))
+        # Get portables from google sheet
+        portables = await Portables._get_portables(self.bot.whttp)
+        if not portables:
+            await self.bot.say('Google sheet could not be reached.')
             return
 
-        # Outputting all portables
-        m = ''
-        for i, worlds in enumerate(json['values'][1]):
-            m += '**%ss**: %s\n' % (ports[i].capitalize(), worlds)
+        # Building message
+        e = discord.Embed()
+        e.colour = 0x3572a7
+        e.timestamp = portables.time
+        e.set_footer(text='Updated %s' % portables.last_updated)
+        e.set_author(name=portables.author,
+                     icon_url='http://services.runescape.com/m=avatar-rs/%s/chat.png' % urllib.parse.quote(portables.author))
 
-        m += '**Last Updated**: %s ago by %s' % (last_update, author)
-        await self.bot.say(m)
+        # Adding portable locations
+        for portable, locations in portables.locations.items():
+
+            # Skipping if no the portable requested
+            if args.portable and args.portable not in portable:
+                continue
+
+            # No location for portable
+            if not locations:
+                e.add_field(name=portable.capitalize(), value='N/A')
+                continue
+
+            value = '\n'.join(['%s %s' % (', '.join(worlds), location) for location, worlds in locations.items()])
+            e.add_field(name=portable.capitalize(), value=value)
+
+        await self.bot.say(embed=e)
 
 
 def setup(bot):

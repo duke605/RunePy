@@ -36,7 +36,7 @@ class Configuration:
             await self.bot.say('```%s```' % str(e))
             return
 
-        configs = self.bot.configurations[ctx.message.channel.server.id]
+        configs = self.bot.configurations.get(ctx.message.channel.server.id)
         con = Config()
         con.server_id = ctx.message.channel.server.id
 
