@@ -1,7 +1,7 @@
 from json import loads
 from urllib.parse import quote
 from collections import OrderedDict
-from db.models import objects, Item
+from db.models import objects, Item, Alias
 from datetime import datetime
 from bs4 import BeautifulSoup
 import aiohttp as http
@@ -136,13 +136,20 @@ async def get_item_alch_prices(item_name: str, fuzzy_name=True):
         item = await fuzzy_match_name(item_name)
 
         # Checking if the id was found
-        if not item_name:
+        if not item:
             return None
 
-        item_name = item['name']
+        return {
+            'high': item.high_alch,
+            'low': item.low_alch
+        }
 
     # Getting high alch price
     async with http.get('http://runescape.wikia.com/wiki/%s' % item_name.replace(' ', '_')) as r:
+
+        if r.status == 404:
+            return None
+
         text = await r.text()
 
     soup = BeautifulSoup(text, 'html.parser')
@@ -226,46 +233,54 @@ async def fuzzy_match_name(name: str):
 
     # Checking DB first
     ret = await objects.execute(
-        Item.raw('SELECT name, id '
-                 'FROM items '
-                 'WHERE name = %s '
+        Item.raw('SELECT * '
+                 'FROM _items '
+                 'WHERE name LIKE %s '
                  'OR SOUNDEX(name) LIKE SOUNDEX(%s) '
                  'ORDER BY sys.jaro_winkler(Name, %s) DESC '
                  'LIMIT 1', name, name, name))
 
     # Returning if name was matched to something
     if ret:
-        return {
-            'name': ret[0].name.replace('_', ' '),
-            'id': ret[0].id
-        }
+        return ret[0]
 
-    # Checking rscript
-    async with http.get('http://rscript.org/lookup.php?type=ge&search=%s&exact=1' % quote(name)) as r:
-        text = await r.text()
-        results = re.search('^RESULTS:\s(\d+?)$', text, re.M)
+    # Trying aliases
+    ret = await objects.execute(
+        Alias.raw('SELECT * '
+                  'FROM aliases '
+                  'JOIN _items ON item_id = id '
+                  'WHERE alias LIKE %s '
+                  'OR SOUNDEX(alias) LIKE SOUNDEX(%s) '
+                  'LIMIT 1', name, name)
+    )
 
-        # WE HAVE A MATCH!! :D
-        if results and int(results.group(1)):
-            return {
-                'name': re.search('^ITEM:\s\d+?\s(.+?)\s', text, re.M).group(1).replace('_', ' '),
-                'id': re.search('^IID:\s(\d+?)$', text, re.M).group(1)
-            }
+    if ret:
+        ret = ret[0]
+        item = Item()
+        item.name = ret.name
+        item.id = ret.id
+        item.members = ret.members
+        item.high_alch = ret.high_alch
+        item.low_alch = ret.low_alch
+        item.description = ret.description
+        item.price = ret.price
+        item.category = ret.category
+        item.last_updated = ret.last_updated
+        item.runeday = ret.runeday
+
+        return item
 
     # Slowly fuzzy matching DB
     ret = await objects.execute(
-        Item.raw('SELECT name, id '
-                 'FROM items '
+        Item.raw('SELECT * '
+                 'FROM _items '
                  'ORDER BY sys.jaro_winkler(name, %s) DESC '
                  'LIMIT 1', name))
 
     if not ret:
         return None
 
-    return {
-        'name': ret[0].name.replace('_', ' '),
-        'id': ret[0].id
-    }
+    return ret[0]
 
 async def get_item_for_name(name: str):
     """
@@ -283,16 +298,13 @@ async def get_item_for_name(name: str):
         return None
 
     # Building URL
-    url = 'http://services.runescape.com/m=itemdb_rs/api/graph/%s.json' % resolved['id']
+    url = 'http://services.runescape.com/m=itemdb_rs/api/graph/%s.json' % resolved.id
     history = await use_jca(url)
 
-    item = Item()
-    item.price = list(history['daily'].values())[-1]
-    item.name = resolved['name']
-    item.id = resolved['id']
-    item.updated_at = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
+    resolved.price = list(history['daily'].values())[-1]
+    resolved.updated_at = datetime.utcnow()
 
-    return item, history
+    return resolved, history
 
 
 def get_exp_between_levels(level1: int, level2: int):

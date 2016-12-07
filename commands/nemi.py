@@ -91,7 +91,7 @@ class Nemi:
 
         headers = {
             'Authorization': 'bearer %s' % token,
-            'User-Agent': 'Python:RunePy:v1.1.28 (by /u/duke605)'
+            'User-Agent': 'Python:RunePy:v%s (by /u/duke605)' % self.bot.cogs['About'].version
         }
 
         # Getting posts from reddit

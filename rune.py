@@ -131,7 +131,7 @@ async def on_command_error(ex, ctx):
 
 @bot.event
 async def on_server_remove(server):
-        h = {'authorization': DISCORD_BOTS_TOKEN, 'user-agent': 'Python:RunePy:v1.1.28 (by /u/duke605)',
+        h = {'authorization': DISCORD_BOTS_TOKEN, 'user-agent': 'Python:RunePy:v%s (by /u/duke605)' % bot.cogs['About'].version,
              'Content-Type': 'application/json'}
         data = {'server_count': len(bot.servers)}
         url = 'https://bots.discord.pw/api/bots/%s/stats' % bot.user.id
@@ -154,7 +154,7 @@ async def on_server_join(server):
     # Checking if the server has more bots than it is allowed
     if sum([m.bot for m in server.members]) <= allowed:
         url = 'https://bots.discord.pw/api/bots/%s/stats' % bot.user.id
-        h = {'Authorization': DISCORD_BOTS_TOKEN, 'User-Agent': 'Python:RunePy:v1.1.28 (by /u/duke605)',
+        h = {'Authorization': DISCORD_BOTS_TOKEN, 'User-Agent': 'Python:RunePy:v%s (by /u/duke605)' % bot.cogs['About'].version,
              'Content-Type': 'application/json'}
         data = {'server_count': len(bot.servers)}
 
@@ -344,11 +344,12 @@ def load_extension(ext: str):
 
 
 # Loading extensions
-startup_extensions = [fn.replace('.py', '') for fn in os.listdir('./commands') if fn.endswith('.py')]
+startup_extensions = ['commands.%s' % fn.replace('.py', '') for fn in os.listdir('./commands') if fn.endswith('.py')]
+startup_extensions += ['tasks.%s' % fn.replace('.py', '') for fn in os.listdir('./tasks') if fn.endswith('.py')]
 
 for ext in startup_extensions:
     try:
-        load_extension('commands.%s' % ext)
+        load_extension(ext)
     except Exception as e:
         exc = '{}: {}'.format(type(e).__name__, e)
         print('Failed to load extension {}\n{}'.format(ext, exc))

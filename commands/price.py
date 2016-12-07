@@ -23,8 +23,6 @@ class Price:
         parser = Arguments(allow_abbrev=False, prog='price')
         parser.add_argument('name', nargs='+', help='The name if the item to get the price for.')
         parser.add_argument('-u', '--units', type=int, help="Multiplies the item's price by the units given.")
-        parser.add_argument('-l', '--low-alch', action='store_true', help='Displays the low alch price for the item.')
-        parser.add_argument('-H', '--high-alch', action='store_true', help='Displays the high alch price for the item.')
         parser.add_argument('-c', '--chart', type=between(1, 6),
                             help="Plots the item's price history for number of given months.")
 
@@ -40,11 +38,11 @@ class Price:
             return
 
         args.name = ' '.join(args.name)
-        await self.execute(args)
 
-    async def execute(self, args):
         item, history = await get_item_for_name(args.name)
         hist_vals = list(history['daily'].values())
+        type = 'Members' if item.members else 'F2P'
+        footer_icon = 'https://cdn.rawgit.com/duke605/RunePy/master/assets/img/%s.png' % ('members' if item.members else 'f2p')
 
         # Getting price change
         day_change = item.price - hist_vals[-2]
@@ -59,10 +57,10 @@ class Price:
 
         # Building message
         e = discord.Embed()
-        e.description = '{:,} GP'.format(item.price)
+        e.description = item.description
         e.colour = 0x3572a7
         e.title = item.name
-        e.url = 'http://services.runescape.com/m=itemdb_rs/Fish_mask/viewitem?obj=%s' % item.id
+        e.url = 'http://services.runescape.com/m=itemdb_rs/viewitem?obj=%s' % item.id
         change = '**24 hours**: `{:,}` GP `{}%` {}\n' \
                  '**30 days**: `{:,}` GP `{}%` {}\n' \
                  '**90 days**: `{:,}` GP `{}%` {}\n' \
@@ -72,30 +70,18 @@ class Price:
                     three_month_change, three_month_change_per, Price.get_change_arrow(three_month_change),
                     six_month_change, six_month_change_per, Price.get_change_arrow(six_month_change))
 
-        e.set_thumbnail(url='http://services.runescape.com/m=itemdb_rs/1480341652272_obj_big.gif?id=%s' % item.id)
+        e.set_thumbnail(url='http://services.runescape.com/m=itemdb_rs/obj_big.gif?id=%s' % item.id)
+        e.add_field(name='Price', value='`{:,}` GP'.format(item.price))
         e.add_field(name='Price changes', value=change, inline=False)
+        e.add_field(name='High alch', value='`{:,}` GP'.format(item.high_alch))
+        e.add_field(name='Low alch', value='`{:,}` GP'.format(item.low_alch))
+        e.set_footer(text=type, icon_url=footer_icon)
 
         # Totaling
         if args.units:
             e.add_field(name='Total Price (x{:,})'.format(args.units), value='{:,} GP'.format(args.units * item.price))
 
         m = await self.bot.say(embed=e)
-
-        # Getting low and/or high alch price
-        if args.high_alch or args.low_alch:
-            alch_prices = await get_item_alch_prices(item.name, False)
-
-            # Check if alch prices found
-            if alch_prices:
-
-                # Adding high alch price
-                if args.high_alch:
-                    e.add_field(name='High alch price', value='`{:,}` GP'.format(alch_prices['high']), inline=False)
-
-                if args.low_alch:
-                    e.add_field(name='Low alch price', value='`{:,}` GP'.format(alch_prices['low']), inline=False)
-
-            await self.bot.edit_message(m, embed=e)
 
         # Adding chart
         if args.chart:
