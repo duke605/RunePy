@@ -16,7 +16,7 @@ class About:
 
     @property
     def version(self):
-        return '1.3.0'
+        return '1.3.1'
 
     def get_uptime(self):
         delta = datetime.utcnow() - self.bot.start_time
