@@ -5,8 +5,6 @@ from secret import DB_PASSWORD
 db = peewee_async.MySQLDatabase('runepy', user='root', password=DB_PASSWORD)
 objects = peewee_async.Manager(db)
 
-db.allow_sync = False
-
 
 class Method(Model):
     id = IntegerField(primary_key=True)

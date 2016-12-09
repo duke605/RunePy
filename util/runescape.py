@@ -1,7 +1,7 @@
 from json import loads
 from urllib.parse import quote
 from collections import OrderedDict
-from db.models import objects, Item, Alias
+from db.models import objects, Item, Alias, db
 from datetime import datetime
 from bs4 import BeautifulSoup
 import aiohttp as http
@@ -271,11 +271,13 @@ async def fuzzy_match_name(name: str):
         return item
 
     # Slowly fuzzy matching DB
+    sanitized = db.get_conn().escape_string(name)
     ret = await objects.execute(
         Item.raw('SELECT * '
                  'FROM _items '
+                 'WHERE name LIKE \'%%{}%%\''
                  'ORDER BY sys.jaro_winkler(name, %s) DESC '
-                 'LIMIT 1', name))
+                 'LIMIT 1'.format(sanitized), name))
 
     if not ret:
         return None

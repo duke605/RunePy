@@ -60,7 +60,16 @@ class VisWax:
         if '(' not in s:
             return s
 
-        rune, alts = re.search('(.+)\s?\((.+)\)', s).groups()
+        try:
+
+            # Trying to parse properly formated data
+            rune, alts = re.search('(.+)\s?\((.+)\)', s).groups()
+        except:
+
+            # Have to put this is because the idiot forgets to close his brackets sometimes
+            # (you know who forgets to close brackets? Psychopaths that's who)
+            rune, alts = re.search('(.+)\s?\((.+)', s).groups()
+
         alts = [a.strip().capitalize() for a in alts.split(',')]
 
         return '%s (%s)' % (rune, ', '.join(alts))

@@ -74,7 +74,7 @@ class Price:
         e.add_field(name='Price', value='`{:,}` GP'.format(item.price))
         e.add_field(name='Price changes', value=change, inline=False)
         e.add_field(name='High alch', value='`{:,}` GP'.format(item.high_alch))
-        e.add_field(name='Low alch', value='`{:,}` GP'.format(item.low_alch))
+        e.add_field(name='Low alch', value='`{:,}` GP\n\u200B'.format(item.low_alch))
         e.set_footer(text=type, icon_url=footer_icon)
 
         # Totaling
