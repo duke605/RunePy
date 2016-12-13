@@ -1,7 +1,7 @@
 from discord.ext import commands
 from util.arguments import Arguments
 from shlex import split
-from util.runescape import get_users_alog
+from util.runescape_util import get_users_alog
 from util.ascii_table import Table
 from util.image_util import text_to_image
 

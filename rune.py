@@ -47,9 +47,9 @@ async def on_ready():
     print('------')
 
     # Checking if recovering from error
-    if sys.argv[1] == '98':
+    if len(sys.argv) >= 2 and sys.argv[1] == '98':
         await bot.send_message(discord.Object(id='241984924616359936'), 'Restarted.')
-    elif sys.argv[1] != '-1':
+    elif len(sys.argv) >= 2 and sys.argv[1] != '-1':
         await bot.send_message(discord.Object(id='241984924616359936'), 'Recovered from a crash.')
 
     # Loading configurations into memory

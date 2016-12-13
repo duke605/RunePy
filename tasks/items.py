@@ -1,23 +1,11 @@
-import util.runescape as rs
+import util.runescape_util as rs
+import util
 import asyncio
 import math
 import sys
 from db.models import Item, objects
 from datetime import datetime
-
-
-def ignore_exception():
-    def decorator(func):
-        async def new_func(*args, **kwargs):
-            try:
-                return await func(*args, **kwargs)
-            except Exception as e:
-                info = sys.exc_info()
-                print('%s - %s' % (func, e))
-
-        return new_func
-
-    return decorator
+import util
 
 
 class Items:
@@ -30,7 +18,7 @@ class Items:
         self.item_lookup.cancel()
 
     @staticmethod
-    @ignore_exception()
+    @util.ignore_exceptions_async()
     async def _get_alpha_numbers(category):
         """
         Gets the alpha numbers for a given category
@@ -58,7 +46,7 @@ class Items:
         return ret
 
     @staticmethod
-    @ignore_exception()
+    @util.ignore_exceptions_async()
     async def _create_item(item, runeday):
         """
         Creates an item in the database
@@ -67,11 +55,8 @@ class Items:
         :param runeday: The runeday the item was fetched
         """
 
-        try:
-            alch = await rs.get_item_alch_prices(item['name'], False)
-            alch = alch if alch else {'high': -1, 'low': -1}
-        except:
-            alch = {'low': 0, 'high': 0}
+        alch = await util.get_alch_price(item['name'], item['id'])
+        alch = alch if alch else util.ALCH_PRICES(high=-3, low=-3)
 
         # Preping data
         data = {
@@ -80,8 +65,8 @@ class Items:
             'category': item['type'],
             'name': item['name'],
             'description': item['description'],
-            'high_alch': alch['high'],
-            'low_alch': alch['low'],
+            'high_alch': alch.high,
+            'low_alch': alch.low,
             'members': True if item['members'] == 'true' else False,
             'price': -1,
             'runeday': runeday
@@ -90,7 +75,7 @@ class Items:
         await objects.create(Item, **data)
 
     @staticmethod
-    @ignore_exception()
+    @util.ignore_exceptions_async()
     async def _create_new_items_for_alphas(category, alpha, pages, delta, runeday):
         """
         Searches through a category and alpha to get the new items
@@ -121,7 +106,7 @@ class Items:
         print('Did not create all items for category %s alpha %s. %s item(s) remaining.' % (category, alpha, delta))
 
     @staticmethod
-    @ignore_exception()
+    @util.ignore_exceptions_async()
     async def _create_new_items_for_numbers(category, delta, runeday):
         """
         Searches through a category and alpha but in an ass backwards way because it's jagex and they can't get a simple API
@@ -152,7 +137,7 @@ class Items:
 
         print('Did not create all items for category %s alpha %s. %s item(s) remaining.' % (category, '#', delta))
 
-    @ignore_exception()
+    @util.ignore_exceptions_async()
     async def look_for_new_items(self, wait=False):
         """
         Looks for new items in the catalogue
@@ -170,6 +155,8 @@ class Items:
         if max_runeday >= runeday:
             self.item_lookup = self.bot.loop.create_task(self.look_for_new_items(True))
             return
+
+        print('New items found in GE, updating...')
 
         # Searching all categories
         for i in range(38):
@@ -192,6 +179,7 @@ class Items:
                 else:
                     await Items._create_new_items_for_numbers(i, items - counts[letter], runeday)
 
+        print('Finished updating items.')
         self.item_lookup = self.bot.loop.create_task(self.look_for_new_items(True))
 
 

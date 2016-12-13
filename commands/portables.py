@@ -5,6 +5,7 @@ from discord.ext import commands
 from shlex import split
 from util.choices import enum
 from collections import namedtuple
+import util
 import re
 import urllib
 import discord
@@ -16,23 +17,6 @@ class Portables:
         self.bot = bot
 
     @staticmethod
-    def _format_time_detla(delta):
-        """
-        Formats a time delta to look like twitter stye "ago"
-        """
-
-        if delta.seconds >= 86400:
-            delta = '{:,}d'.format(round(delta.seconds / 86400))
-        elif delta.seconds >= 3600:
-            delta = '{:,}h'.format(round(delta.seconds / 3600))
-        elif delta.seconds >= 60:
-            delta = '{:,}m'.format(round(delta.seconds / 60))
-        else:
-            delta = '{:,}s'.format(delta.seconds)
-
-        return delta
-
-    @staticmethod
     def _format_data(json):
         date_format = '%d %b, %H:%M'
         struct = namedtuple('Portable', ['author', 'last_updated', 'locations', 'time'])
@@ -40,7 +24,7 @@ class Portables:
         # Populating portables
         time = datetime.strptime(json['values'][2][1], date_format).replace(year=datetime.utcnow().year)
         author = json['values'][2][3]
-        last_updated = Portables._format_time_detla(datetime.utcnow() - time)
+        last_updated = util.format_timedelta(datetime.utcnow() - time, short_names=True)
         locations = {'fletchers': {}, 'crafters': {}, 'braziers': {}, 'sawmills': {}, 'forges': {}, 'ranges': {}, 'wells': {}}
 
         # Finding all worlds for portables
@@ -82,23 +66,21 @@ class Portables:
 
     @commands.command(pass_context=True, aliases=['ports', 'port', 'portable'], description='Shows portable locations.')
     async def portables(self, ctx, *, msg: str = ''):
-        ports = ('fletcher', 'crafter', 'brazier', 'sawmill', 'forge', 'range', 'well')
+        ports = {
+            'fletcher': ('fletchers', 'fletch'),
+            'crafter': ('crafters', 'craft'),
+            'brazier': ('braziers', 'braz'),
+            'sawmill': ('saw', 'mill', 'sawmills'),
+            'forge': ('forges',),
+            'range':  ('ranges', 'cook'),
+            'well': ('wells',)
+        }
 
         parser = Arguments(allow_abbrev=False, prog='portables')
-        parser.add_argument('portable', nargs='?',
-                            type=enum(
-                                fletcher=('fletchers', 'fletch'),
-                                crafter=('crafters', 'craft'),
-                                brazier=('braziers', 'braz'),
-                                sawmill=('saw', 'mill', 'sawmills'),
-                                forge=('forges'),
-                                range=('ranges', 'cook'),
-                                well=('wells')
-                            ),
-                            help='Selects a type of portable to search for.')
+        parser.add_argument('portable', nargs='?', type=enum(**ports), help='Selects a type of portable to search for.')
 
+        # Parsing arguments
         await self.bot.send_typing(ctx.message.channel)
-
         try:
             args = parser.parse_args(split(msg))
         except SystemExit:
@@ -118,7 +100,7 @@ class Portables:
         e = discord.Embed()
         e.colour = 0x3572a7
         e.timestamp = portables.time
-        e.set_footer(text='Updated %s' % portables.last_updated)
+        e.set_footer(text='Updated %s ago' % portables.last_updated)
         e.set_author(name=portables.author,
                      icon_url='http://services.runescape.com/m=avatar-rs/%s/chat.png' % urllib.parse.quote(portables.author))
 

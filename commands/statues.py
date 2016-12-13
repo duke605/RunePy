@@ -2,7 +2,7 @@ from commands.lamp import Lamp
 from discord.ext import commands
 from util.arguments import Arguments
 from shlex import split
-from util.runescape import get_users_stats
+from util.runescape_util import get_users_stats
 
 
 class Statues:

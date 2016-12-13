@@ -1,7 +1,7 @@
 from util.arguments import Arguments
 from discord.ext import commands
 from shlex import split
-from util.runescape import get_member_info
+from util.runescape_util import get_member_info
 
 
 class MemberInfo:

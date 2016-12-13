@@ -1,8 +1,7 @@
-from util.runescape import get_item_for_name, get_item_alch_prices, add_metric_suffix
+from util.runescape_util import add_metric_suffix
 from matplotlib import pyplot, ticker
 from datetime import datetime
 from io import BytesIO
-from db.models import Item, objects
 from util.image_util import upload_to_imgur
 from discord.ext import commands
 from util.arguments import Arguments
@@ -10,6 +9,7 @@ from util.choices import between
 from shlex import split
 import discord
 import matplotlib
+import util
 
 
 class Price:
@@ -39,10 +39,13 @@ class Price:
 
         args.name = ' '.join(args.name)
 
-        item, history = await get_item_for_name(args.name)
+        item = await util.fuzzy_match_name(args.name)
+        if not item:
+            await self.bot.say('An item with the name, **%s**, could not be found.' % args.name)
+            return
+
+        history = await item.get_history()
         hist_vals = list(history['daily'].values())
-        type = 'Members' if item.members else 'F2P'
-        footer_icon = 'https://cdn.rawgit.com/duke605/RunePy/master/assets/img/%s.png' % ('members' if item.members else 'f2p')
 
         # Getting price change
         day_change = item.price - hist_vals[-2]
@@ -70,12 +73,12 @@ class Price:
                     three_month_change, three_month_change_per, Price.get_change_arrow(three_month_change),
                     six_month_change, six_month_change_per, Price.get_change_arrow(six_month_change))
 
-        e.set_thumbnail(url='http://services.runescape.com/m=itemdb_rs/obj_big.gif?id=%s' % item.id)
+        e.set_thumbnail(url=item.icon_url)
         e.add_field(name='Price', value='`{:,}` GP'.format(item.price))
         e.add_field(name='Price changes', value=change, inline=False)
         e.add_field(name='High alch', value='`{:,}` GP'.format(item.high_alch))
         e.add_field(name='Low alch', value='`{:,}` GP\n\u200B'.format(item.low_alch))
-        e.set_footer(text=type, icon_url=footer_icon)
+        e.set_footer(text='Members' if item.members else 'F2P', icon_url=item.type_url)
 
         # Totaling
         if args.units:
@@ -91,10 +94,6 @@ class Price:
             if link:
                 e.set_image(url=link)
                 await self.bot.edit_message(m, embed=e)
-
-        # Checking if item is in DB
-        if not await objects.execute(Item.select().where(Item.id == item.id).limit(1)):
-            r = await objects.create(Item, id=item.id, name=item.name, updated_at=item.updated_at, price=item.price)
 
     @staticmethod
     async def plot_history(history, months, name):
@@ -141,11 +140,10 @@ class Price:
         [i.set_color('white') for i in pyplot.gca().get_yticklabels()]
         matplotlib.rc('font', **{'family': 'consola', 'size': 10})
 
-        buf = BytesIO()
-        fig.savefig(buf, format='png', bbox_inches='tight', facecolor="#2e3136")
-        pyplot.close()
-
-        return await upload_to_imgur(buf)
+        with BytesIO() as buf:
+            fig.savefig(buf, format='png', bbox_inches='tight', facecolor="#2e3136")
+            pyplot.close()
+            return await upload_to_imgur(buf)
 
     @staticmethod
     def get_change_arrow(num: int):

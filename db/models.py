@@ -1,6 +1,7 @@
 import peewee_async
 from peewee import Model, FloatField, IntegerField, CharField, DateTimeField, BooleanField, ForeignKeyField
 from secret import DB_PASSWORD
+import util
 
 db = peewee_async.MySQLDatabase('runepy', user='root', password=DB_PASSWORD)
 objects = peewee_async.Manager(db)
@@ -38,6 +39,21 @@ class Item(Model):
     runeday = IntegerField()
     members = BooleanField()
     last_updated = DateTimeField()
+
+    @property
+    def type_url(self):
+        return 'https://cdn.rawgit.com/duke605/RunePy/master/assets/img/%s.png' % ('members' if self.members else 'f2p')
+
+    @property
+    def icon_url(self):
+        return 'http://services.runescape.com/m=itemdb_rs/obj_big.gif?id=%s' % self.id
+
+    @property
+    def grand_exchange_url(self):
+        return 'http://services.runescape.com/m=itemdb_rs/viewitem?obj=%s' % self.id
+
+    async def get_history(self):
+        return await util.get_price_history(self)
 
     class Meta:
         database = db

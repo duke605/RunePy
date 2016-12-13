@@ -1,5 +1,5 @@
 from discord.ext import commands
-from util.runescape import get_users_stats, get_exp_between_levels
+from util.runescape_util import get_users_stats, get_exp_between_levels
 from util.arguments import Arguments
 from util.choices import between, enum, minimum
 from shlex import split

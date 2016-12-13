@@ -1,4 +1,4 @@
-from util.runescape import get_users_stats, get_level_at_exp
+from util.runescape_util import get_users_stats, get_level_at_exp
 from util.ascii_table import Table, Column
 from util.image_util import text_to_image
 from discord.ext import commands

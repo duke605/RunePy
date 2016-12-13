@@ -3,7 +3,7 @@ from io import BytesIO
 from PIL import Image, ImageFont, ImageDraw
 import aiohttp as http
 
-async def upload_to_imgur(buf: BytesIO):
+async def upload_to_imgur(buf):
     """
     Uploads a byte array to imgur
 
@@ -14,13 +14,18 @@ async def upload_to_imgur(buf: BytesIO):
 
     # Seeking to 0
     buf.seek(0)
+    data = {
+        'url': 'https://api.imgur.com/3/image',
+        'data': {
+            'image': buf,
+            'type': 'file'
+        },
+        'headers': {
+            'authorization': 'Client-ID %s' % IMGUR_TOKEN
+        }
+    }
 
-    async with http.post('https://api.imgur.com/3/image', data={
-        'image': buf,
-        'type': 'file'
-    }, headers={
-        'authorization': 'Client-ID %s' % IMGUR_TOKEN
-    }) as r:
+    async with http.post(**data) as r:
         json = await r.json()
 
         # Checking if request is okay

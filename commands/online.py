@@ -1,4 +1,4 @@
-from util.runescape import get_players_online
+from util.runescape_util import get_players_online
 from discord.ext import commands
 
 
