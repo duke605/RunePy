@@ -17,7 +17,7 @@ class Stats:
         parser = Arguments(allow_abbrev=False, prog='stats')
         parser.add_argument('name', nargs='+', help='The name of the character to get stats for.')
         parser.add_argument('-v', '--virtual', action='store_true',
-                            help='Shows that your level would be if it wasn\'t capped at 99.')
+                            help='Shows what your level would be if it wasn\'t capped at 99.')
         parser.add_argument('-i', '--image', action='store_true',
                             help='Displays the table as an image. (Useful for mobile)')
 
