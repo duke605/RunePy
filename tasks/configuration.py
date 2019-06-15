@@ -37,7 +37,7 @@ class Config:
         e = discord.Embed()
         e.title = server.name
         e.timestamp = server.me.joined_at
-        e.description = 'Did not use the more for 14 or more days.'
+        e.description = 'Did not use the bot for 14 or more days.'
         e.add_field(name='Bots', value='{:,}'.format(bots))
         e.add_field(name='Users', value='{:,}'.format(users))
         e.set_author(name=str(owner), icon_url=owner.avatar_url or owner.default_avatar_url)
